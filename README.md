@@ -7,6 +7,8 @@ tools and services.
 
 The bridge can also export all data from the Plugwise Adam and the attached Toms and Annas in order to create nice dashboards and graphs; this has been tested using Thingsboard and the Thingsboard IoT gateway.
 
+Note the bridge only supports setting the thermostat temperature, not other features of the Plugwise appliances are currently available. 
+
 ## Features
 
 * Set the temperature of Anna thermostats through MQTT topic(s)
