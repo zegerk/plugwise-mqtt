@@ -13,13 +13,15 @@ The bridge can also export all data from the Plugwise Adam and the attached Toms
 * Publish all appliance data (Toms, Annas and the Gateway) to MQTT on a regular interval
 * The status of the bridge is published at regular intervals to status topic(s)
 
-## Setup
+## Setup and run
 
 ```
+npm install 
 npm run build
+npm start
 ```
 
-Example config.yml
+A config.yml is required or environment parameters must be set, example:
 
 ```yaml
 logLevel: info
@@ -77,8 +79,3 @@ mqtt:
             status: 'gBridge/u1/{applianceId}/scene/set'
 
 ```
-
-
-## Legal
-
-This tool is NOT affiliated to Plugwise.
