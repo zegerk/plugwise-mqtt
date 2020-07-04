@@ -1,3 +1,6 @@
 /.vscode
 /config.yml.bak
+/config.yml
+node_modules
 build
+dist

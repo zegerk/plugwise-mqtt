@@ -1,4 +1,4 @@
-import * as mqtt from 'mqtt'
+import {connect, MqttClient} from 'mqtt'
 
 import {logger} from './logger'
 import {plugwiseConfig, isCompleteMessageTemplate} from './config'
@@ -17,7 +17,7 @@ import {exit} from 'process'
  */
 export default class Mqtt {
   private static instance: Mqtt
-  private mqttClient: mqtt.MqttClient
+  private mqttClient: MqttClient
   private plugwise: Plugwise
 
   private actionTopicLookup:
@@ -35,7 +35,7 @@ export default class Mqtt {
       server: plugwiseConfig.mqtt.server, port: plugwiseConfig.mqtt.port,
     })
 
-    this.mqttClient = mqtt.connect(
+    this.mqttClient = connect(
         plugwiseConfig.mqtt.server,
         {port: plugwiseConfig.mqtt.port, keepalive: 3600},
     ).on('error', function(err) {

@@ -49,8 +49,8 @@ export default class Plugwise {
     }
 
     logger.error(
-        `Cannot initialize mapping in Plugwise class,
-        some features will not be available`,
+        'Cannot initialize mapping in Plugwise class' +
+        'some features will not be available',
     )
     return false
   }

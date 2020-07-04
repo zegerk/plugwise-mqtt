@@ -15,7 +15,11 @@ The bridge can also export all data from the Plugwise Adam and the attached Toms
 
 ## Setup
 
-Examply config.yml
+```
+npm run build
+```
+
+Example config.yml
 
 ```yaml
 logLevel: info
