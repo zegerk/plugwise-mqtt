@@ -22,13 +22,13 @@ export interface actionGroup {
 }
 
 export interface config {
-  plugwiseUpdate: boolean;
+  plugwisePolling: boolean;
   logLevel: string;
   plugwise: {
     baseUrl: string;
     username: string;
     password: string;
-    pullPause: number;
+    pollInterval: number;
   }
   mqtt : {
     dryRun: boolean;
