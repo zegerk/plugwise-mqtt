@@ -26,13 +26,13 @@ export function isCompleteMessageTemplate(messageTemplate: string) {
 
 (() => {
   const plugwiseBaseConfig = {
-    plugwiseUpdate: true,
+    plugwisePolling: true,
     logLevel: process.env.LOGLEVEL || 'info',
     plugwise: {
       baseUrl: process.env.PLUGWISE_PASSWORD,
       username: process.env.PLUGWISE_USERNAME || 'smile',
       password: process.env.PLUGWISE_BASE_URL,
-      pullPause: parseInt(process.env.PLUGWISE_PULL_PAUSE || '5000'),
+      pollInterval: parseInt(process.env.PLUGWISE_PULL_PAUSE || '5000'),
     },
     mqtt: {
       dryRun: false,

@@ -181,7 +181,7 @@ async function update(timestamp: number) {
    * Disabling this loop in the config will result in the app only handling
    * temperature settings
    */
-  while (plugwiseConfig.plugwiseUpdate) {
+  while (plugwiseConfig.plugwisePolling) {
     /**
      * the update call returns the timestamp of the last update found in
      * milliseonds
@@ -193,6 +193,6 @@ async function update(timestamp: number) {
     /**
      * Avoid hammering plugwise
      */
-    await delay(plugwiseConfig.plugwise.pullPause)
+    await delay(plugwiseConfig.plugwise.pollInterval)
   }
 })()
