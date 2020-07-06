@@ -6,7 +6,9 @@
   "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
   "repository": "https://github.com/zegerk/plugwise-mqtt",
-  "publishConfig": { "registry": "https://npm.pkg.github.com/" },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "license": "MIT",
   "author": "Zeger Knops <zeger@zeger.nl>",
   "keywords": [],
@@ -57,6 +59,7 @@
     "axios": "^0.19.2",
     "js-yaml": "^3.14.0",
     "mqtt": "^4.1.0",
+    "np": "^6.3.0",
     "sha.js": "^2.4.11",
     "winston": "^3.3.3",
     "xml2js": "^0.4.23"
