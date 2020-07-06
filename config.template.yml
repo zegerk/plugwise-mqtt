@@ -1,3 +1,4 @@
+# debug or info for now
 logLevel: info
 # If set to false the bridge will only handle actions but will 
 # not request updates from the Plugwise gateway at regular intervals
