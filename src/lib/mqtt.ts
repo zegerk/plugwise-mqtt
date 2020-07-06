@@ -226,6 +226,7 @@ export default class Mqtt {
 
     logger.info(`${mqttMessages.length} message(s) ready to send`)
 
+    mqttMessages.length &&
     mqttMessages.reduce(
         function(_accumulator: any, mqttMessage: plugwiseMqttMessage) {
           /**
