@@ -98,7 +98,12 @@ async function update(timestamp: number) {
                  */
                 if (applianceValueTimestamp > timestamp) {
                   const fieldName: string = pointLog.type[0]
-                  const fieldValue: string = pointLog.period[0].measurement[0]._
+                  let fieldValue: string | number =
+                    pointLog.period[0].measurement[0]._
+
+                  fieldValue = !isNaN(Number(fieldValue)) ?
+                                  parseFloat(String(fieldValue)) :
+                                  fieldValue
 
                   const applianceData: plugwiseMqttMessage = {
                     ts: applianceValueTimestamp,
@@ -110,19 +115,16 @@ async function update(timestamp: number) {
                      * Make real numbers from numeric string so they will be
                      * encoded properly later on
                      */
-                    fieldValue: !isNaN(Number(fieldValue)) ?
-                      parseFloat(fieldValue) :
-                      fieldValue,
+                    fieldValue: fieldValue,
+                    /**
+                     * both key, value and key: value are set in the message
+                     *
+                     * { fieldName: temperature_theromstat,
+                     *   fieldValue: 22.1,
+                     *   temperature_thermostat: 22.1 }
+                     */
+                    [fieldName]: fieldValue,
                   }
-
-                  /**
-                   * both key, value and key: value are set in the message
-                   *
-                   * { fieldName: temperature_theromstat,
-                   *   fieldValue: 22.1,
-                   *   temperature_thermostat: 22.1 }
-                   */
-                  applianceData[fieldName] = applianceData[fieldValue]
 
                   logger.debug(JSON.stringify(applianceData))
 
