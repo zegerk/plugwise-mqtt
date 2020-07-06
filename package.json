@@ -6,6 +6,7 @@
   "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
   "repository": "https://github.com/zegerk/plugwise-mqtt",
+  "publishConfig": { "registry": "https://npm.pkg.github.com/" }
   "license": "MIT",
   "author": "Zeger Knops <zeger@zeger.nl>",
   "keywords": [],
