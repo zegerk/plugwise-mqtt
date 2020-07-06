@@ -80,7 +80,7 @@ async function update(timestamp: number) {
             return accumulator
           }
 
-          const pointLogs = appliance.logs[0].point_log.reduce(
+          const pointLogs = (appliance.logs[0].point_log || []).reduce(
               function(logsAccumulator: any, pointLog: any) {
                 if (!pointLog.period) {
                   return logsAccumulator
