@@ -3,6 +3,8 @@ export interface statusMqttMessage {
   updateTime?: string
   // Number of updates
   updateCount?: number
+  // Last error
+  err?: string
 }
 
 export interface plugwiseMqttMessage {

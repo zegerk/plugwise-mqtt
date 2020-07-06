@@ -62,13 +62,16 @@ async function update(timestamp: number) {
   /**
    * Loop through the returned data a build a list of MQTT messages containing
    * only the data we need
+   *
+   * @return {boolean} result status - more details in topic
    */
   parseString(result, function(err, result: any) {
-    /**
-     * @todo
-     */
     if (err) {
-      throw (err)
+      logger.error({msg: 'Parsing failed', err})
+
+      statusMessage.err = JSON.stringify(err)
+      mqtt.status(statusMessage)
+      return false
     }
 
     const mqttMessages = (result.domain_objects.appliance || []).reduce(
@@ -150,6 +153,8 @@ async function update(timestamp: number) {
 
     statusMessage.updateCount = mqttMessages.length
     mqtt.status(statusMessage)
+
+    return true
   })
 
   /**

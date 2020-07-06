@@ -221,7 +221,7 @@ export default class Plugwise {
              ';deleted_date:ge:0' +
              ';@memberModifiedDate={timestamp}'
 
-      url = url.replace('{timestamp}', String(timestamp))
+      url = url.replace(/\{timestamp\}/g, String(timestamp))
     }
 
     if (objectClass != null) {

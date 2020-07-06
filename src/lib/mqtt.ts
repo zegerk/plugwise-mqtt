@@ -207,7 +207,7 @@ export default class Mqtt {
         function(_accumulator: any, topicConfig: statusTopic) {
           mqttClient.publish(
               topicConfig.topic, JSON.stringify(statusMessage), {},
-              (err: any) => logger.error({
+              (err: any) => err && logger.error({
                 msg: 'error publishing status',
                 err, topicConfig},
               ),
@@ -226,6 +226,7 @@ export default class Mqtt {
 
     logger.info(`${mqttMessages.length} message(s) ready to send`)
 
+    mqttMessages.length &&
     mqttMessages.reduce(
         function(_accumulator: any, mqttMessage: plugwiseMqttMessage) {
           /**
@@ -264,9 +265,9 @@ export default class Mqtt {
 
                   self.mqttClient.publish(
                       topic, JSON.stringify(message), {},
-                      (err: any) => logger.error({
+                      (err: any) => err && logger.error({
                         msg: 'error publishing',
-                        err: err, topic: topic, message: message},
+                        err, topic, message},
                       ),
                   )
                 } else {

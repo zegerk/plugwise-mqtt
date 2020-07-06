@@ -32,7 +32,7 @@ export function isCompleteMessageTemplate(messageTemplate: string) {
       baseUrl: process.env.PLUGWISE_PASSWORD,
       username: process.env.PLUGWISE_USERNAME || 'smile',
       password: process.env.PLUGWISE_BASE_URL,
-      pollInterval: parseInt(process.env.PLUGWISE_PULL_PAUSE || '5000'),
+      pollInterval: parseInt(process.env.PLUGWISE_POLL_INTERVAL || '10000'),
     },
     mqtt: {
       dryRun: false,
