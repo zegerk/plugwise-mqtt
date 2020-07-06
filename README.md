@@ -5,14 +5,14 @@ Bridge between Plugwise Adam and a MQTT server
 The bridge was build to control Plugwise Anna thermostats with Google Home through gBridge but can also be used with other MQTT based 
 tools and services.
 
-The bridge can also export all data from the Plugwise Adam and the attached Toms and Annas in order to create nice dashboards and graphs; this has been tested using Thingsboard and the Thingsboard IoT gateway.
+The bridge can also export all data from the Plugwise Adam and the attached Toms and Lisas in order to create nice dashboards and graphs; this has been tested using Thingsboard and the Thingsboard IoT gateway.
 
 Note the bridge only supports setting the thermostat temperature, not other features of the Plugwise appliances are currently available. 
 
 ## Features
 
-* Set the temperature of Anna thermostats through MQTT topic(s)
-* Publish all appliance data (Toms, Annas and the Gateway) to MQTT on a regular interval
+* Set the temperature of Lisa thermostats through MQTT topic(s)
+* Publish all appliance data (Toms, Lisas and the Gateway) to MQTT on a regular interval
 * The status of the bridge is published at regular intervals to status topic(s)
 
 ## Setup and run
