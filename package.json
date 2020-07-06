@@ -5,7 +5,7 @@
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
-  "repository": "https://github.com/YOUR_GITHUB_USER_NAME/plugwise-mqtt",
+  "repository": "https://github.com/zegerk/plugwise-mqtt",
   "license": "MIT",
   "author": "Zeger Knops <zeger@zeger.nl>",
   "keywords": [],
