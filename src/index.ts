@@ -68,6 +68,9 @@ async function update(timestamp: number) {
   parseString(result, function(err, result: any) {
     if (err) {
       logger.error({msg: 'Parsing failed', err})
+
+      statusMessage.err = JSON.stringify(err)
+      mqtt.status(statusMessage)
       return false
     }
 
