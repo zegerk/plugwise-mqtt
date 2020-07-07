@@ -1,6 +1,7 @@
 /.vscode
 /config.yml.bak
 /config.yml
+.nyc_output
 node_modules
 build
 dist
