@@ -30,8 +30,8 @@ import {plugwiseConfig} from './lib/config'
 import Plugwise from './lib/plugwise'
 import Mqtt from './lib/mqtt'
 
-let plugwise:Plugwise
-let mqtt:Mqtt
+let plugwise: Plugwise
+let mqtt: Mqtt
 
 /**
  * Get all updates values from Plugwise since timestamp and send them
@@ -48,8 +48,10 @@ async function update(timestamp: number) {
    * be the next timesatmp
    */
   let maxApplianceTimestamp = timestamp
-  const statusMessage: statusMqttMessage =
-    {updateTime: (new Date(timestamp)).toISOString(), updateCount: 0}
+  const statusMessage: statusMqttMessage = {
+    updateTime: new Date(timestamp).toISOString(),
+    updateCount: 0,
+  }
 
   const result = await plugwise.getUpdatedObjects(Math.floor(timestamp / 1000))
 
@@ -65,7 +67,7 @@ async function update(timestamp: number) {
    *
    * @return {boolean} result status - more details in topic
    */
-  parseString(result, function(err, result: any) {
+  parseString(result, function (err, result: any) {
     if (err) {
       logger.error({msg: 'Parsing failed', err})
 
@@ -75,74 +77,80 @@ async function update(timestamp: number) {
     }
 
     const mqttMessages = (result.domain_objects.appliance || []).reduce(
-        function(accumulator: any, appliance: any) {
-          if (!appliance.logs) {
-            return accumulator
+      function (accumulator: any, appliance: any) {
+        if (!appliance.logs) {
+          return accumulator
+        }
+
+        const pointLogs = (appliance.logs[0].point_log || []).reduce(function (
+          logsAccumulator: any,
+          pointLog: any,
+        ) {
+          if (!pointLog.period) {
+            return logsAccumulator
           }
 
-          const pointLogs = (appliance.logs[0].point_log || []).reduce(
-              function(logsAccumulator: any, pointLog: any) {
-                if (!pointLog.period) {
-                  return logsAccumulator
-                }
+          const applianceValueTimestamp = new Date(
+            pointLog.period[0].measurement[0].$.log_date,
+          ).getTime()
 
-                const applianceValueTimestamp =
-                  new Date(
-                      pointLog.period[0].measurement[0].$.log_date,
-                  ).getTime()
+          /**
+           * If a single value is updated the full list of data fields
+           * for an appliance is returned, filter on update timestamp for
+           * the values in order to send the ones actually updated to MQTT
+           */
+          if (applianceValueTimestamp > timestamp) {
+            const fieldName: string = pointLog.type[0]
+            let fieldValue: string | number =
+              pointLog.period[0].measurement[0]._
 
-                /**
-                 * If a single value is updated the full list of data fields
-                 * for an appliance is returned, filter on update timestamp for
-                 * the values in order to send the ones actually updated to MQTT
-                 */
-                if (applianceValueTimestamp > timestamp) {
-                  const fieldName: string = pointLog.type[0]
-                  let fieldValue: string | number =
-                    pointLog.period[0].measurement[0]._
+            fieldValue = !isNaN(Number(fieldValue))
+              ? parseFloat(String(fieldValue))
+              : fieldValue
 
-                  fieldValue = !isNaN(Number(fieldValue)) ?
-                                  parseFloat(String(fieldValue)) :
-                                  fieldValue
+            const applianceData: plugwiseMqttMessage = {
+              ts: applianceValueTimestamp,
+              id: appliance.$.id,
+              name: appliance.name[0],
+              type: appliance.type[0],
+              fieldName: fieldName,
+              /**
+               * Make real numbers from numeric string so they will be
+               * encoded properly later on
+               */
+              fieldValue: fieldValue,
+              /**
+               * both key, value and key: value are set in the message
+               *
+               * { fieldName: temperature_theromstat,
+               *   fieldValue: 22.1,
+               *   temperature_thermostat: 22.1 }
+               */
+              [fieldName]: fieldValue,
+            }
 
-                  const applianceData: plugwiseMqttMessage = {
-                    ts: applianceValueTimestamp,
-                    id: appliance.$.id,
-                    name: appliance.name[0],
-                    type: appliance.type[0],
-                    fieldName: fieldName,
-                    /**
-                     * Make real numbers from numeric string so they will be
-                     * encoded properly later on
-                     */
-                    fieldValue: fieldValue,
-                    /**
-                     * both key, value and key: value are set in the message
-                     *
-                     * { fieldName: temperature_theromstat,
-                     *   fieldValue: 22.1,
-                     *   temperature_thermostat: 22.1 }
-                     */
-                    [fieldName]: fieldValue,
-                  }
+            logger.debug(JSON.stringify(applianceData))
 
-                  logger.debug(JSON.stringify(applianceData))
+            /**
+             * Track the timestamp of the latest update so we can
+             * return it later to start the next update from that
+             * point in time
+             */
+            maxApplianceTimestamp = Math.max(
+              maxApplianceTimestamp,
+              applianceValueTimestamp,
+            )
 
-                  /**
-                   * Track the timestamp of the latest update so we can
-                   * return it later to start the next update from that
-                   * point in time
-                   */
-                  maxApplianceTimestamp =
-                    Math.max(maxApplianceTimestamp, applianceValueTimestamp)
+            return [...logsAccumulator, applianceData]
+          }
 
-                  return [...logsAccumulator, applianceData]
-                }
-
-                return logsAccumulator
-              }, [])
-          return [...accumulator, ...pointLogs]
-        }, [])
+          return logsAccumulator
+        },
+        [])
+        return [...accumulator, ...pointLogs]
+      },
+      [],
+    )
 
     /**
      * After all messages have been collected they are offloaded to the
@@ -170,7 +178,7 @@ async function update(timestamp: number) {
 /**
  * Main loop
  */
-(async () => {
+;(async () => {
   logger.info('Start main loop')
 
   plugwise = Plugwise.getInstance()

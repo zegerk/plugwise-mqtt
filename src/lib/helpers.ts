@@ -7,7 +7,6 @@ export async function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-
 /**
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
  *
@@ -18,12 +17,12 @@ export async function delay(ms: number) {
  * @return {string}
  */
 export function template(
-    template: string,
-    substitutes: {[index: string]: string | number}) {
+  template: string,
+  substitutes: {[index: string]: string | number},
+) {
   return Object.keys(substitutes).reduce(
-      (accumulator, pattern) =>
-        accumulator.replace('{' + pattern + '}', String(substitutes[pattern])),
-      template,
+    (accumulator, pattern) =>
+      accumulator.replace('{' + pattern + '}', String(substitutes[pattern])),
+    template,
   )
 }
-

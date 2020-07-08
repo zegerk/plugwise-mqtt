@@ -12,7 +12,7 @@ import {config} from '../types/config'
 const MQTT_MESSAGE_COMPLETE = 'complete'
 const CONFIG_FILE = process.env.CONFIG || 'config.yml'
 
-export let plugwiseConfig:config
+export let plugwiseConfig: config
 
 /**
  * Check if the template for full message is being used
@@ -24,7 +24,7 @@ export function isCompleteMessageTemplate(messageTemplate: string) {
   return messageTemplate === MQTT_MESSAGE_COMPLETE
 }
 
-(() => {
+;(() => {
   const plugwiseBaseConfig = {
     plugwisePolling: true,
     logLevel: process.env.LOGLEVEL || 'info',
@@ -42,13 +42,11 @@ export function isCompleteMessageTemplate(messageTemplate: string) {
     },
   }
 
-  if ( fs.existsSync(CONFIG_FILE) ) {
+  if (fs.existsSync(CONFIG_FILE)) {
     try {
       plugwiseConfig = {
         ...plugwiseBaseConfig,
-        ...Object(
-            yaml.safeLoad(fs.readFileSync(CONFIG_FILE, 'utf8')),
-        ),
+        ...Object(yaml.safeLoad(fs.readFileSync(CONFIG_FILE, 'utf8'))),
       }
 
       /**
@@ -73,9 +71,11 @@ export function isCompleteMessageTemplate(messageTemplate: string) {
   } else {
     logger.info({msg: 'No settings file found', file: CONFIG_FILE})
 
-    if (!plugwiseBaseConfig.plugwise.baseUrl ||
-        !plugwiseBaseConfig.plugwise.password ||
-        !plugwiseBaseConfig.mqtt.server) {
+    if (
+      !plugwiseBaseConfig.plugwise.baseUrl ||
+      !plugwiseBaseConfig.plugwise.password ||
+      !plugwiseBaseConfig.mqtt.server
+    ) {
       logger.error({
         msg: 'Missing required configuration options',
         config: plugwiseBaseConfig,
@@ -90,4 +90,3 @@ export function isCompleteMessageTemplate(messageTemplate: string) {
     plugwiseConfig = <config>plugwiseBaseConfig
   }
 })()
-

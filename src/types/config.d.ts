@@ -1,46 +1,46 @@
 export interface actionTopic {
-  listen: string;
-  status: string;
-  message?: string;
-  encoding?: string;
+  listen: string
+  status: string
+  message?: string
+  encoding?: string
 }
 
 export interface topicTemplate {
-  topic: string;
-  message: string;
-  encoding?: string;
+  topic: string
+  message: string
+  encoding?: string
 }
 
 export interface statusTopic {
-  topic: string;
-  encoding?: string;
+  topic: string
+  encoding?: string
 }
 
 export interface actionGroup {
-  [thermostat?: string]: actionTopic;
-  [scene?: string]: actionTopic;
+  [thermostat?: string]: actionTopic
+  [scene?: string]: actionTopic
 }
 
 export interface config {
-  plugwisePolling: boolean;
-  logLevel: string;
+  plugwisePolling: boolean
+  logLevel: string
   plugwise: {
-    baseUrl: string;
-    username: string;
-    password: string;
-    pollInterval: number;
+    baseUrl: string
+    username: string
+    password: string
+    pollInterval: number
   }
-  mqtt : {
-    dryRun: boolean;
-    server: string;
-    port: number;
+  mqtt: {
+    dryRun: boolean
+    server: string
+    port: number
     topics: {
       status?: {
         [index: string]: statusTopic
-      },
+      }
       data?: {
         [index: string]: topicTemplate
-      },
+      }
       action?: {
         [index: string]: actionGroup
       }
