@@ -9,18 +9,17 @@ export interface statusMqttMessage {
 
 export interface plugwiseMqttMessage {
   // Timestamp in ms
-  ts: number;
+  ts: number
   // appliance ID [a-z0-9]{16}
-  id: string;
+  id: string
   // human readable device name, "Kitchen thermostat"
-  name: string;
+  name: string
   // Plugwise device type, "zone_thermostat"
-  type: string;
+  type: string
   // Name of the datafield (key)
-  fieldName: string;
+  fieldName: string
   // Value of the field (value)
-  fieldValue: string | number;
+  fieldValue: string | number
   // key -> value
-  [index: string]: string | number;
+  [index: string]: string | number
 }
-

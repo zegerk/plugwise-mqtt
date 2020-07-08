@@ -9,9 +9,9 @@ export default class Mapping {
   private static instance: Mapping
 
   /*
-  * Mapping of appliance to appliance static variables, such as
-  * location
-  */
+   * Mapping of appliance to appliance static variables, such as
+   * location
+   */
   private applianceMapping: {[index: string]: {locationId: string}} = {}
 
   /**
@@ -24,8 +24,7 @@ export default class Mapping {
   /**
    * Nothing to do here
    */
-  public constructor() {
-  }
+  public constructor() {}
 
   /**
    * Singleton pattern
@@ -48,8 +47,10 @@ export default class Mapping {
    * @return {boolean | string}
    */
   public getLocationThermostatId(locationId: string) {
-    if (this.locationMapping[locationId] &&
-        this.locationMapping[locationId].thermostatId) {
+    if (
+      this.locationMapping[locationId] &&
+      this.locationMapping[locationId].thermostatId
+    ) {
       return this.locationMapping[locationId].thermostatId
     }
     return false
@@ -63,8 +64,10 @@ export default class Mapping {
    * @return {boolean | string}
    */
   public getApplianceLocationId(applianceId: string) {
-    if (this.applianceMapping[applianceId] &&
-        this.applianceMapping[applianceId].locationId) {
+    if (
+      this.applianceMapping[applianceId] &&
+      this.applianceMapping[applianceId].locationId
+    ) {
       return this.applianceMapping[applianceId].locationId
     }
     return false
@@ -107,32 +110,38 @@ export default class Mapping {
      * we can handle updates from MQTT -> Plugwise
      */
     return new Promise((resolve, reject) =>
-      parseString(domainObjects, function(err, result) {
+      parseString(domainObjects, function (err, result) {
         if (err) {
           logger.error({msg: 'Building appliance mapping failed', error: err})
           reject(err)
         }
-
-        (result.domain_objects.appliance || []).reduce(
-            function(_accumulator: never, appliance: any) {
-              appliance.location &&
-              (self.applianceMapping[appliance.$.id] =
-                {locationId: appliance.location[0].$.id})
-            }, [],
-        );
-
-        (result.domain_objects.location || []).reduce(
-            function(_accumulator: never, location: any) {
-              (location.actuator_functionalities || []).reduce(
-                  function(_accumulator: never, actuatorFuncionality: any) {
-                    actuatorFuncionality.thermostat_functionality &&
-                    (self.locationMapping[location.$.id] =
-                      {thermostatId:
-                        actuatorFuncionality.thermostat_functionality[0].$.id})
-                  }, [],
-              )
-            }, [],
-        )
+        ;(result.domain_objects.appliance || []).reduce(function (
+          _accumulator: never,
+          appliance: any,
+        ) {
+          appliance.location &&
+            (self.applianceMapping[appliance.$.id] = {
+              locationId: appliance.location[0].$.id,
+            })
+        },
+        [])
+        ;(result.domain_objects.location || []).reduce(function (
+          _accumulator: never,
+          location: any,
+        ) {
+          ;(location.actuator_functionalities || []).reduce(function (
+            _accumulator: never,
+            actuatorFuncionality: any,
+          ) {
+            actuatorFuncionality.thermostat_functionality &&
+              (self.locationMapping[location.$.id] = {
+                thermostatId:
+                  actuatorFuncionality.thermostat_functionality[0].$.id,
+              })
+          },
+          [])
+        },
+        [])
 
         logger.info('Appliance mapping done')
         resolve(true)

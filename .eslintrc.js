@@ -1,22 +1,35 @@
 module.exports = {
-  'env': {
-    'browser': true,
-    'es2020': true,
+  env: {browser: true, es2020: true},
+  extends: ['prettier', 'google'],
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaVersion: 11,
+    sourceType: 'module',
   },
-  'extends': [
-    'google',
-  ],
-  'parser': '@typescript-eslint/parser',
-  'parserOptions': {
-    'ecmaVersion': 11,
-    'sourceType': 'module',
-  },
-  'plugins': [
-    '@typescript-eslint',
-  ],
-  'rules': {
-    'semi': ['error', 'never'],
+  plugins: ['@typescript-eslint', 'prettier'],
+  rules: {
+    'prettier/prettier': ['error'],
+    'space-before-function-paren': [
+      'error',
+      {
+        anonymous: 'ignore',
+        named: 'ignore',
+        asyncArrow: 'ignore',
+      },
+    ],
+    'quote-props': ['error', 'as-needed'],
+    semi: ['error', 'never'],
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': 'error',
+    'operator-linebreak': [
+      'error',
+      'after',
+      {overrides: {'?': 'before', ':': 'before'}},
+    ],
+    indent: [
+      'error',
+      2,
+      {SwitchCase: 1, FunctionDeclaration: {body: 1, parameters: 1}},
+    ],
   },
 }

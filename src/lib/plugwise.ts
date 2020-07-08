@@ -49,7 +49,7 @@ export default class Plugwise {
     }
 
     logger.error(
-        'Cannot initialize mapping in Plugwise class' +
+      'Cannot initialize mapping in Plugwise class' +
         'some features will not be available',
     )
     return false
@@ -62,15 +62,16 @@ export default class Plugwise {
   private async connect() {
     logger.info('Connecting to gateway')
     const gateway = await this.plugwiseRequest(
-        this.getPlugwiseDomainObjectsUrl(0, 'Gateway'),
+      this.getPlugwiseDomainObjectsUrl(0, 'Gateway'),
     )
 
     if (!gateway) {
       return false
     }
 
-    const gatewayModel =
-      String(gateway).match(/<vendor_model>(.*)<\/vendor_model>/)
+    const gatewayModel = String(gateway).match(
+      /<vendor_model>(.*)<\/vendor_model>/,
+    )
 
     logger.info({
       msg: 'Connected to gateway',
@@ -89,39 +90,38 @@ export default class Plugwise {
    * @param {number} temperature
    */
   public async setThermostat(applianceId: string, temperature: number) {
-    let locationId:string | boolean = false
-    let thermostatId:string | boolean = false
+    let locationId: string | boolean = false
+    let thermostatId: string | boolean = false
 
     logger.info({msg: 'setThermostat', applianceId, temperature})
 
-    if ((locationId = this.mapping.getApplianceLocationId(applianceId)) &&
-        (thermostatId = this.mapping.getLocationThermostatId(locationId))) {
-      logger.info({
-        msg: 'setThermostat',
-        locationId, thermostatId, temperature,
-      })
+    if (
+      (locationId = this.mapping.getApplianceLocationId(applianceId)) &&
+      (thermostatId = this.mapping.getLocationThermostatId(locationId))
+    ) {
+      logger.info({msg: 'setThermostat', locationId, thermostatId, temperature})
 
-      const url =
-        template(
-            plugwiseConfig.plugwise.baseUrl +
-            'core/direct_objects;id={locationId}/thermostat;id={thermostatId}',
-            {locationId, thermostatId},
-        )
+      const url = template(
+        plugwiseConfig.plugwise.baseUrl +
+          'core/direct_objects;id={locationId}/thermostat;id={thermostatId}',
+        {locationId, thermostatId},
+      )
 
-      const plugwiseMessage =
-        template(
-            '<thermostat_functionality>' +
-            '<setpoint>{temperature}</setpoint>' +
-            '</thermostat_functionality>',
-            {temperature},
-        )
+      const plugwiseMessage = template(
+        '<thermostat_functionality>' +
+          '<setpoint>{temperature}</setpoint>' +
+          '</thermostat_functionality>',
+        {temperature},
+      )
 
       return this.plugwiseUpdateRequest(url, plugwiseMessage)
     }
 
     logger.warn({
       msg: 'Cannot set thermostat',
-      locationId, thermostatId, temperature,
+      locationId,
+      thermostatId,
+      temperature,
     })
 
     return false
@@ -145,7 +145,7 @@ export default class Plugwise {
    */
   public async getUpdatedObjects(timestamp: number) {
     return await this.plugwiseRequest(
-        this.getPlugwiseDomainObjectsUrl(timestamp),
+      this.getPlugwiseDomainObjectsUrl(timestamp),
     )
   }
 
@@ -161,12 +161,16 @@ export default class Plugwise {
        * Note we are directly returning the data object
        * and coverting it to a string
        */
-      return String((await axios.get(url, {
-        auth: {
-          username: plugwiseConfig.plugwise.username,
-          password: plugwiseConfig.plugwise.password,
-        },
-      })).data)
+      return String(
+        (
+          await axios.get(url, {
+            auth: {
+              username: plugwiseConfig.plugwise.username,
+              password: plugwiseConfig.plugwise.password,
+            },
+          })
+        ).data,
+      )
     } catch (err) {
       logger.error({msg: 'Request failed', url, err})
       return false
@@ -191,9 +195,7 @@ export default class Plugwise {
       })
       return result.status === 200
     } catch (err) {
-      logger.error({
-        msg: 'plugwiseUpdateRequest', err, url, message,
-      })
+      logger.error({msg: 'plugwiseUpdateRequest', err, url, message})
       return false
     }
   }
@@ -209,27 +211,28 @@ export default class Plugwise {
    * @return {sting}
    */
   public getPlugwiseDomainObjectsUrl(
-      timestamp: number,
-      objectClass?: PlugwiseObjectClass[] | PlugwiseObjectClass,
+    timestamp: number,
+    objectClass?: PlugwiseObjectClass[] | PlugwiseObjectClass,
   ) {
     let url = plugwiseConfig.plugwise.baseUrl
 
     url += 'core/domain_objects;@locale=en-US'
 
     if (timestamp) {
-      url += ';modified_date:ge:{timestamp}' +
-             ';deleted_date:ge:0' +
-             ';@memberModifiedDate={timestamp}'
+      url +=
+        ';modified_date:ge:{timestamp}' +
+        ';deleted_date:ge:0' +
+        ';@memberModifiedDate={timestamp}'
 
       url = url.replace(/\{timestamp\}/g, String(timestamp))
     }
 
     if (objectClass != null) {
-      url += ';class=' +
-             (Array.isArray(objectClass) ? objectClass.join(',') : objectClass)
+      url +=
+        ';class=' +
+        (Array.isArray(objectClass) ? objectClass.join(',') : objectClass)
     }
 
     return url
   }
 }
-

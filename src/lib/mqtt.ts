@@ -3,8 +3,12 @@ import {connect, MqttClient} from 'mqtt'
 import {logger} from './logger'
 import {plugwiseConfig, isCompleteMessageTemplate} from './config'
 
-import type {actionTopic, actionGroup, statusTopic, topicTemplate}
-  from '../types/config'
+import type {
+  actionTopic,
+  actionGroup,
+  statusTopic,
+  topicTemplate,
+} from '../types/config'
 import type {plugwiseMqttMessage, statusMqttMessage} from '../types/mqtt'
 
 import {template} from './helpers'
@@ -20,8 +24,9 @@ export default class Mqtt {
   private mqttClient: MqttClient
   private plugwise: Plugwise
 
-  private actionTopicLookup:
-    {[index: string]: {actionType: string, actionTopicConfig: actionTopic}} = {}
+  private actionTopicLookup: {
+    [index: string]: {actionType: string; actionTopicConfig: actionTopic}
+  } = {}
 
   /**
    * Connect to the main mqtt gateway - no support yet
@@ -32,13 +37,14 @@ export default class Mqtt {
 
     logger.info({
       msg: 'Connecting to MQTT server',
-      server: plugwiseConfig.mqtt.server, port: plugwiseConfig.mqtt.port,
+      server: plugwiseConfig.mqtt.server,
+      port: plugwiseConfig.mqtt.port,
     })
 
-    this.mqttClient = connect(
-        plugwiseConfig.mqtt.server,
-        {port: plugwiseConfig.mqtt.port, keepalive: 3600},
-    ).on('error', function(err) {
+    this.mqttClient = connect(plugwiseConfig.mqtt.server, {
+      port: plugwiseConfig.mqtt.port,
+      keepalive: 3600,
+    }).on('error', function (err) {
       /**
        * No connection to MQTT server, nothing to do
        */
@@ -51,8 +57,8 @@ export default class Mqtt {
      * MQTT client and we cannot reach the Plugwise class
      */
     this.mqttClient
-        .on('connect', this.onConnect.bind(this))
-        .on('message', this.onMessage.bind(this))
+      .on('connect', this.onConnect.bind(this))
+      .on('message', this.onMessage.bind(this))
   }
 
   /**
@@ -75,7 +81,7 @@ export default class Mqtt {
   private onConnect() {
     const mqttClient = this.mqttClient
     const actionTopicLookup = this.actionTopicLookup
-    let mqttActionTopicListen:string
+    let mqttActionTopicListen: string
 
     logger.info({
       mqtt_status: 'connected',
@@ -84,38 +90,50 @@ export default class Mqtt {
     })
 
     plugwiseConfig.mqtt.topics.action &&
-    Object.values(plugwiseConfig.mqtt.topics.action).reduce(
-        function(_accumulator: any, group: actionGroup) {
-          Object.keys(group).reduce(
-              function(_accumulator: any, actionType: string) {
-                const topics = group[actionType]
-                /**
-                 * Create the lookup for the message received function
-                 */
-                actionTopicLookup[topics.listen] =
-                  {actionType: actionType, actionTopicConfig: topics};
-
-                [topics.listen, topics.status].reduce(
-                    function(_accumulator: any, topic: string) {
-                      mqttClient.subscribe(
-                          topic.replace(/\{[a-zA-Z]+\}/g, '+'),
-                          function(err, granted) {
-                            if (err) {
-                              logger.error({
-                                msg: 'MQTT subscribe error',
-                                error: err, topic: mqttActionTopicListen,
-                              })
-                            } else {
-                              logger.info({
-                                msg: 'MQTT subscribed',
-                                granted, topic: mqttActionTopicListen,
-                              })
-                            }
-                          },
-                      )
-                    }, [])
-              }, [])
-        }, [])
+      Object.values(plugwiseConfig.mqtt.topics.action).reduce(function (
+        _accumulator: any,
+        group: actionGroup,
+      ) {
+        Object.keys(group).reduce(function (
+          _accumulator: any,
+          actionType: string,
+        ) {
+          const topics = group[actionType]
+          /**
+           * Create the lookup for the message received function
+           */
+          actionTopicLookup[topics.listen] = {
+            actionType: actionType,
+            actionTopicConfig: topics,
+          }
+          ;[topics.listen, topics.status].reduce(function (
+            _accumulator: any,
+            topic: string,
+          ) {
+            mqttClient.subscribe(
+              topic.replace(/\{[a-zA-Z]+\}/g, '+'),
+              function (err, granted) {
+                if (err) {
+                  logger.error({
+                    msg: 'MQTT subscribe error',
+                    error: err,
+                    topic: mqttActionTopicListen,
+                  })
+                } else {
+                  logger.info({
+                    msg: 'MQTT subscribed',
+                    granted,
+                    topic: mqttActionTopicListen,
+                  })
+                }
+              },
+            )
+          },
+          [])
+        },
+        [])
+      },
+      [])
   }
 
   /**
@@ -129,7 +147,7 @@ export default class Mqtt {
     const plugwise = this.plugwise
     const mqttClient = this.mqttClient
 
-    let actionTopicConfig: {actionType: string, actionTopicConfig: actionTopic}
+    let actionTopicConfig: {actionType: string; actionTopicConfig: actionTopic}
 
     logger.debug({msg: 'mqtt message received', topic, message})
 
@@ -137,12 +155,16 @@ export default class Mqtt {
      * Figure out which topic it actually was from the list of
      * action topics
      */
-    if (actionTopicConfig =
-          this.actionTopicLookup[
-              topic.replace(/[a-z0-9]{32}/, '{applianceId}')
-          ]) {
+    if (
+      (actionTopicConfig = this.actionTopicLookup[
+        topic.replace(/[a-z0-9]{32}/, '{applianceId}')
+      ])
+    ) {
       logger.info({
-        msg: 'action topic match', actionTopicConfig, topic, rawMessage,
+        msg: 'action topic match',
+        actionTopicConfig,
+        topic,
+        rawMessage,
       })
 
       /**
@@ -153,10 +175,10 @@ export default class Mqtt {
       const applianceMatch = topic.match(/[a-z0-9]{32}/g)
 
       if (applianceMatch) {
-        const applianceId:string = applianceMatch[0]
-        const statusTopic:string = template(
-            actionTopicConfig.actionTopicConfig.status,
-            {applianceId: applianceId},
+        const applianceId: string = applianceMatch[0]
+        const statusTopic: string = template(
+          actionTopicConfig.actionTopicConfig.status,
+          {applianceId: applianceId},
         )
 
         switch (actionTopicConfig.actionType) {
@@ -170,7 +192,9 @@ export default class Mqtt {
             } else {
               logger.error({
                 msg: 'error setting thermostat',
-                actionTopicConfig, topic, rawMessage,
+                actionTopicConfig,
+                topic,
+                rawMessage,
               })
             }
 
@@ -188,7 +212,7 @@ export default class Mqtt {
         }
       } else {
         logger.error(
-            'No appliance found in action topic - cannot handle message',
+          'No appliance found in action topic - cannot handle message',
         )
       }
     }
@@ -203,17 +227,24 @@ export default class Mqtt {
     const mqttClient = this.mqttClient
 
     plugwiseConfig.mqtt.topics.status &&
-    Object.values(plugwiseConfig.mqtt.topics.status).reduce(
-        function(_accumulator: any, topicConfig: statusTopic) {
-          mqttClient.publish(
-              topicConfig.topic, JSON.stringify(statusMessage), {},
-              (err: any) => err && logger.error({
-                msg: 'error publishing status',
-                err, topicConfig},
-              ),
-          )
-        }, [],
-    )
+      Object.values(plugwiseConfig.mqtt.topics.status).reduce(function (
+        _accumulator: any,
+        topicConfig: statusTopic,
+      ) {
+        mqttClient.publish(
+          topicConfig.topic,
+          JSON.stringify(statusMessage),
+          {},
+          (err: any) =>
+            err &&
+            logger.error({
+              msg: 'error publishing status',
+              err,
+              topicConfig,
+            }),
+        )
+      },
+      [])
   }
 
   /**
@@ -227,56 +258,67 @@ export default class Mqtt {
     logger.info(`${mqttMessages.length} message(s) ready to send`)
 
     mqttMessages.length &&
-    mqttMessages.reduce(
-        function(_accumulator: any, mqttMessage: plugwiseMqttMessage) {
-          /**
-           * Loop through the array of data (output) topics - so each
-           * message can be published multiple times
-           */
-          plugwiseConfig.mqtt.topics.data &&
-          Object.values(plugwiseConfig.mqtt.topics.data).reduce(
-              function(_accumulator: any, topicConfig: topicTemplate) {
-                const topic = template(
-                    topicConfig.topic,
-                    {applianceId: mqttMessage.id, ...mqttMessage},
-                )
+      mqttMessages.reduce(function (
+        _accumulator: any,
+        mqttMessage: plugwiseMqttMessage,
+      ) {
+        /**
+         * Loop through the array of data (output) topics - so each
+         * message can be published multiple times
+         */
+        plugwiseConfig.mqtt.topics.data &&
+          Object.values(plugwiseConfig.mqtt.topics.data).reduce(function (
+            _accumulator: any,
+            topicConfig: topicTemplate,
+          ) {
+            const topic = template(topicConfig.topic, {
+              applianceId: mqttMessage.id,
+              ...mqttMessage,
+            })
 
-                /**
-                 * The message is a simple template with one exception to
-                 * dump the whole message to MQTT using the
-                 * MQTT_MESSAGE_COMPLETE keyword
-                 *
-                 * We add one extra value to the template "applianceId" -
-                 * for easy of use
-                 */
-                const message =
-                  isCompleteMessageTemplate(topicConfig.message) ?
-                    mqttMessage :
-                    template(
-                        topicConfig.message,
-                        {applianceId: mqttMessage.id, ...mqttMessage},
-                    )
+            /**
+             * The message is a simple template with one exception to
+             * dump the whole message to MQTT using the
+             * MQTT_MESSAGE_COMPLETE keyword
+             *
+             * We add one extra value to the template "applianceId" -
+             * for easy of use
+             */
+            // prettier-ignore
+            const message =
+              isCompleteMessageTemplate(topicConfig.message)
+                ? mqttMessage
+                : template(topicConfig.message, {
+                  applianceId: mqttMessage.id,
+                  ...mqttMessage,
+                })
 
-                if (!plugwiseConfig.mqtt.dryRun) {
-                  logger.debug({
-                    msg: 'publishing',
-                    topic: topic, message: message,
-                  })
+            if (!plugwiseConfig.mqtt.dryRun) {
+              logger.debug({msg: 'publishing', topic, message})
 
-                  self.mqttClient.publish(
-                      topic, JSON.stringify(message), {},
-                      (err: any) => err && logger.error({
-                        msg: 'error publishing',
-                        err, topic, message},
-                      ),
-                  )
-                } else {
-                  logger.info({
-                    msg: 'dry run enabled; not publishing',
-                    topic: topic, message: message,
-                  })
-                }
-              }, [])
-        }, [])
+              self.mqttClient.publish(
+                topic,
+                JSON.stringify(message),
+                {},
+                (err: any) =>
+                  err &&
+                  logger.error({
+                    msg: 'error publishing',
+                    err,
+                    topic,
+                    message,
+                  }),
+              )
+            } else {
+              logger.info({
+                msg: 'dry run enabled; not publishing',
+                topic,
+                message,
+              })
+            }
+          },
+          [])
+      },
+      [])
   }
 }
