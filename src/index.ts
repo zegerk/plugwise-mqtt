@@ -29,6 +29,7 @@ import {plugwiseConfig} from './lib/config'
 
 import Plugwise from './lib/plugwise'
 import Mqtt from './lib/mqtt'
+import {exit} from 'process'
 
 let plugwise: Plugwise
 let mqtt: Mqtt
@@ -179,6 +180,24 @@ async function update(timestamp: number) {
  * Main loop
  */
 ;(async () => {
+  let polling = true
+
+  /**
+   * When process should stop: stop the loop and
+   * kill the MQTT connections
+   */
+  process.on('SIGINT', async function () {
+    logger.info('Stopping Plugwise polling')
+    polling = false
+    logger.info('Stopping MQTT')
+    try {
+      await mqtt.shutdown()
+      exit(0)
+    } catch (e) {
+      exit(1)
+    }
+  })
+
   logger.info('Start main loop')
 
   plugwise = Plugwise.getInstance()
@@ -196,7 +215,7 @@ async function update(timestamp: number) {
    * Disabling this loop in the config will result in the app only handling
    * temperature settings
    */
-  while (plugwiseConfig.plugwisePolling) {
+  while (plugwiseConfig.plugwisePolling && polling) {
     /**
      * the update call returns the timestamp of the last update found in
      * milliseonds
