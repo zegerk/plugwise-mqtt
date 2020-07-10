@@ -38,7 +38,7 @@ plugwise:
   # on the back of the Plugwise Adam the password is shown
   password: 'xxxxxxxxxxx'
   # how often to pull updates from the Plugwise Adam in ms
-  pullPause: 10000
+  pollInterval: 10000
 mqtt:
     # If set to true messages will be shown in the log but
     # not send to the MQTT servera
