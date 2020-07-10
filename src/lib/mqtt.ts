@@ -321,4 +321,23 @@ export default class Mqtt {
       },
       [])
   }
+
+  /**
+   * Close the connections and stop
+   *
+   * @return {Promise}
+   */
+  public shutdown(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.mqttClient.end(false, function (result: boolean | undefined) {
+        if (result == null) {
+          logger.info('MQTT connections closed')
+          resolve()
+        } else {
+          logger.error('Failed closing MQTT connections')
+          reject(new Error('Failed closing MQTT connections'))
+        }
+      })
+    })
+  }
 }
