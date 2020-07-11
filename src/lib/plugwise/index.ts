@@ -1,9 +1,11 @@
 import axios from 'axios'
 
-import {logger} from './logger'
-import {plugwiseConfig} from './config'
-import Mapping from './mapping'
-import {template} from './helpers'
+import {logger} from '../logger'
+import {plugwiseConfig} from '../config'
+import Mapping from '../mapping'
+import {template} from '../helpers'
+
+import {getRequestFailed} from './error'
 
 export type PlugwiseObjectClass = 'Gateway' | 'Location' | 'Module'
 
@@ -172,7 +174,7 @@ export default class Plugwise {
         ).data,
       )
     } catch (err) {
-      logger.error({msg: 'Request failed', url, err})
+      logger.error(getRequestFailed(err))
       return false
     }
   }

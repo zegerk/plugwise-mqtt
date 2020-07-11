@@ -1,10 +1,12 @@
+import {ExtError} from '../lib/error'
+
 export interface statusMqttMessage {
   // ISO-8601 timestamp of last update
   updateTime?: string
   // Number of updates
   updateCount?: number
   // Last error
-  err?: string
+  err?: string | ExtError
 }
 
 export interface plugwiseMqttMessage {

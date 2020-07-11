@@ -81,3 +81,7 @@ mqtt:
             status: 'gBridge/u1/{applianceId}/scene/set'
 
 ```
+
+References
+
+Error handling based on : https://medium.com/inato/expressive-error-handling-in-typescript-and-benefits-for-domain-driven-design-70726e061c86

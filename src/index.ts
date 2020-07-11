@@ -28,6 +28,7 @@ import {logger} from './lib/logger'
 import {plugwiseConfig} from './lib/config'
 
 import Plugwise from './lib/plugwise'
+import {noDataRecievedError, xmlParserError} from './lib/plugwise/error'
 import Mqtt from './lib/mqtt'
 import {exit} from 'process'
 
@@ -54,11 +55,22 @@ async function update(timestamp: number) {
     updateCount: 0,
   }
 
+  /**
+   * Timestamp handling in the XML is in milliseconds, timestamp handling
+   * on the url is in seconds; round down to avoid missing a second
+   */
   const result = await plugwise.getUpdatedObjects(Math.floor(timestamp / 1000))
 
   if (!result) {
-    logger.error('No data received from Plugwise')
+    const error = noDataRecievedError()
+
+    logger.error(error.message)
+    statusMessage.err = error.message
+
     mqtt.status(statusMessage)
+    /**
+     * Return the same timestamp so next update will be just a retry
+     */
     return timestamp
   }
 
@@ -70,9 +82,11 @@ async function update(timestamp: number) {
    */
   parseString(result, function (err, result: any) {
     if (err) {
-      logger.error({msg: 'Parsing failed', err})
+      const error = xmlParserError(err)
 
-      statusMessage.err = JSON.stringify(err)
+      logger.error(error)
+
+      statusMessage.err = error
       mqtt.status(statusMessage)
       return false
     }
