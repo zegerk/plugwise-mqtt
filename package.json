@@ -85,7 +85,7 @@
     "open-cli": "^5.0.0",
     "prettier": "^2.0.5",
     "prettylint": "^1.0.0",
-    "standard-version": "^6.0.1",
+    "standard-version": "^8.0.1",
     "trash-cli": "^3.0.0",
     "ts-loader": "^7.0.5",
     "typescript": "^3.9.6",
