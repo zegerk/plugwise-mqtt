@@ -5,7 +5,7 @@ import {plugwiseConfig} from '../config'
 import Mapping from '../mapping'
 import {template} from '../helpers'
 
-import {getRequestFailed} from './error'
+import {getRequestFailed, putRequestFailed} from './error'
 
 export type PlugwiseObjectClass = 'Gateway' | 'Location' | 'Module'
 
@@ -197,7 +197,7 @@ export default class Plugwise {
       })
       return result.status === 200
     } catch (err) {
-      logger.error({msg: 'plugwiseUpdateRequest', err, url, message})
+      logger.error(putRequestFailed(err, {url, message}))
       return false
     }
   }

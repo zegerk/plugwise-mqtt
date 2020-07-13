@@ -2,8 +2,9 @@ import * as fs from 'fs'
 import * as yaml from 'js-yaml'
 import {exit} from 'process'
 
-import {logger} from './logger'
-import {config} from '../types/config'
+import {logger} from '../logger'
+import {config} from '../../types/config'
+import {configLoadingError, missingRequiredSettingsError} from './error'
 
 /**
  * Helper constant for the MQTT topic configuration, using this constant
@@ -48,7 +49,6 @@ export function isCompleteMessageTemplate(messageTemplate: string) {
         ...plugwiseBaseConfig,
         ...Object(yaml.safeLoad(fs.readFileSync(CONFIG_FILE, 'utf8'))),
       }
-
       /**
        * Settings alreay contains a basic template which is merged with
        * environment variables and the config from the yaml file; obligatory
@@ -56,16 +56,8 @@ export function isCompleteMessageTemplate(messageTemplate: string) {
        *
        * @todo better validation
        */
-
-      /*
-      (!plugwiseConfig.plugwise ||
-        typeof plugwiseConfig.plugwise.base_url === 'undefined' ||
-        typeof plugwiseConfig.plugwise.password === 'undefined') &&
-        logger.error({msg: 'Plugwise configuration option(s) missing'}) &&
-        exit(1)
-      */
-    } catch (e) {
-      logger.error({msg: 'loading config.yml failed', error: e})
+    } catch (err) {
+      logger.error(configLoadingError(err))
       exit(1)
     }
   } else {
@@ -76,10 +68,7 @@ export function isCompleteMessageTemplate(messageTemplate: string) {
       !plugwiseBaseConfig.plugwise.password ||
       !plugwiseBaseConfig.mqtt.server
     ) {
-      logger.error({
-        msg: 'Missing required configuration options',
-        config: plugwiseBaseConfig,
-      })
+      logger.error(missingRequiredSettingsError(plugwiseBaseConfig))
       exit(1)
     }
 

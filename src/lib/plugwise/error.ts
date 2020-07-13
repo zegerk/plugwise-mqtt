@@ -1,20 +1,31 @@
 /**
  * Error codes for Plugwise
  */
-import {ExtError} from '../error'
+import {ExtError, ExtErrorAttributes} from '../error'
 
 export enum PlugwiseError {
   NoDataRecieved,
   XmlParserError,
   GetRequestFailed,
+  PutRequestFailed,
 }
 
 export const getRequestFailed = (
   error: Error,
 ): ExtError<PlugwiseError.GetRequestFailed> => ({
   type: PlugwiseError.GetRequestFailed,
-  message: 'Get request to Plugwise faileds',
+  message: 'Get request to Plugwise failed',
   error: error,
+})
+
+export const putRequestFailed = (
+  error: Error,
+  attr: ExtErrorAttributes,
+): ExtError<PlugwiseError.PutRequestFailed> => ({
+  type: PlugwiseError.PutRequestFailed,
+  message: 'Put request to Plugwise failed',
+  error,
+  attr,
 })
 
 export const xmlParserError = (

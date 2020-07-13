@@ -64,8 +64,8 @@ async function update(timestamp: number) {
   if (!result) {
     const error = noDataRecievedError()
 
-    logger.error(error.message)
-    statusMessage.err = error.message
+    logger.error(error)
+    statusMessage.err = error
 
     mqtt.status(statusMessage)
     /**
