@@ -3,6 +3,7 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/da81856a8a53a198b4bb/maintainability)](https://codeclimate.com/github/zegerk/plugwise-mqtt/maintainability)
 ![Dependencies](https://david-dm.org/zegerk/plugwise-mqtt.svg)
 ![DevDependencies](https://david-dm.org/zegerk/plugwise-mqtt/dev-status.svg)
+[![npm version](https://badge.fury.io/js/plugwise-mqtt.svg)](https://badge.fury.io/js/plugwise-mqtt)
 
 
 # plugwise-mqtt
