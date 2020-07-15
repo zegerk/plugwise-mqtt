@@ -2,7 +2,7 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/zegerk/plugwise-mqtt/badge.svg)](https://snyk.io/test/github/zegerk/plugwise-mqtt)
 [![Maintainability](https://api.codeclimate.com/v1/badges/da81856a8a53a198b4bb/maintainability)](https://codeclimate.com/github/zegerk/plugwise-mqtt/maintainability)
 ![Dependencies](https://david-dm.org/zegerk/plugwise-mqtt.svg)
-![DevDependencies](https://david-dm.org/zegerk/plugwise-mqtt.svg?type=dev)
+![DevDependencies](https://david-dm.org/zegerk/plugwise-mqtt/dev-status.svg)
 
 
 # plugwise-mqtt
