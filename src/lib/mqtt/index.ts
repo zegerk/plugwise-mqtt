@@ -1,19 +1,25 @@
 import {connect, MqttClient} from 'mqtt'
 
-import {logger} from './logger'
-import {plugwiseConfig, isCompleteMessageTemplate} from './config'
+import {logger} from '../logger'
+import {plugwiseConfig, isCompleteMessageTemplate} from '../config'
+import {
+  failedClosingConnectionsError,
+  publishingError,
+  connectError,
+  subscribeError,
+} from './error'
 
 import type {
   actionTopic,
   actionGroup,
   statusTopic,
   topicTemplate,
-} from '../types/config'
-import type {plugwiseMqttMessage, statusMqttMessage} from '../types/mqtt'
+} from '../../types/config'
+import type {plugwiseMqttMessage, statusMqttMessage} from '../../types/mqtt'
 
-import {template} from './helpers'
+import {template} from '../helpers'
 
-import Plugwise from './plugwise'
+import Plugwise from '../plugwise'
 import {exit} from 'process'
 
 /**
@@ -48,7 +54,7 @@ export default class Mqtt {
       /**
        * No connection to MQTT server, nothing to do
        */
-      logger.error(err)
+      logger.error(connectError(err))
       exit(1)
     })
 
@@ -114,11 +120,9 @@ export default class Mqtt {
               topic.replace(/\{[a-zA-Z]+\}/g, '+'),
               function (err, granted) {
                 if (err) {
-                  logger.error({
-                    msg: 'MQTT subscribe error',
-                    error: err,
-                    topic: mqttActionTopicListen,
-                  })
+                  logger.error(
+                    subscribeError(err, {topic: mqttActionTopicListen}),
+                  )
                 } else {
                   logger.info({
                     msg: 'MQTT subscribed',
@@ -190,12 +194,16 @@ export default class Mqtt {
             if (plugwise.setThermostat(applianceId, parseFloat(message))) {
               mqttClient.publish(statusTopic, message)
             } else {
-              logger.error({
-                msg: 'error setting thermostat',
-                actionTopicConfig,
-                topic,
-                rawMessage,
-              })
+              /**
+               * Not really a publishing error @todo
+               */
+              logger.error(
+                publishingError(new Error('Error setting thermostat'), {
+                  topic,
+                  actionTopicConfig,
+                  message: rawMessage,
+                }),
+              )
             }
 
             break
@@ -237,11 +245,12 @@ export default class Mqtt {
           {},
           (err: any) =>
             err &&
-            logger.error({
-              msg: 'error publishing status',
-              err,
-              topicConfig,
-            }),
+            logger.error(
+              publishingError(err, {
+                topic: topicConfig.topic,
+                message: statusMessage,
+              }),
+            ),
         )
       },
       [])
@@ -301,13 +310,7 @@ export default class Mqtt {
                 JSON.stringify(message),
                 {},
                 (err: any) =>
-                  err &&
-                  logger.error({
-                    msg: 'error publishing',
-                    err,
-                    topic,
-                    message,
-                  }),
+                  err && logger.error(publishingError(err, {topic, message})),
               )
             } else {
               logger.info({
@@ -334,8 +337,9 @@ export default class Mqtt {
           logger.info('MQTT connections closed')
           resolve()
         } else {
-          logger.error('Failed closing MQTT connections')
-          reject(new Error('Failed closing MQTT connections'))
+          const error = failedClosingConnectionsError()
+          logger.error(error)
+          reject(error)
         }
       })
     })

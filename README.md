@@ -38,7 +38,7 @@ plugwise:
   # on the back of the Plugwise Adam the password is shown
   password: 'xxxxxxxxxxx'
   # how often to pull updates from the Plugwise Adam in ms
-  pullPause: 10000
+  pollInterval: 10000
 mqtt:
     # If set to true messages will be shown in the log but
     # not send to the MQTT servera
@@ -81,3 +81,7 @@ mqtt:
             status: 'gBridge/u1/{applianceId}/scene/set'
 
 ```
+
+References
+
+Error handling based on : https://medium.com/inato/expressive-error-handling-in-typescript-and-benefits-for-domain-driven-design-70726e061c86
