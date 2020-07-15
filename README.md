@@ -1,4 +1,5 @@
 ![Node.js CI](https://github.com/zegerk/plugwise-mqtt/workflows/Node.js%20CI/badge.svg?branch=master)
+[![Known Vulnerabilities](https://snyk.io/test/github/zegerk/plugwise-mqtt/badge.svg)](https://snyk.io/test/github/zegerk/plugwise-mqtt)
 
 # plugwise-mqtt
 
