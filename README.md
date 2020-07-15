@@ -1,3 +1,5 @@
+![Node.js CI](https://github.com/zegerk/plugwise-mqtt/workflows/Node.js%20CI/badge.svg?branch=master)
+
 # plugwise-mqtt
 
 Bridge between Plugwise Adam and a MQTT server
