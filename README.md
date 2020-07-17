@@ -6,13 +6,11 @@
 ![DevDependencies](https://david-dm.org/zegerk/plugwise-mqtt/dev-status.svg)
 [![npm version](https://badge.fury.io/js/plugwise-mqtt.svg)](https://badge.fury.io/js/plugwise-mqtt)
 
-
 # plugwise-mqtt
 
 Bridge between Plugwise Adam and a MQTT server
 
-The bridge was build to control Plugwise Anna thermostats with Google Home through gBridge but can also be used with other MQTT based 
-tools and services.
+The bridge was build to control Plugwise Anna thermostats with Google Home through gBridge but can also be used with other MQTT based tools and services.
 
 The bridge can also export all data from the Plugwise Adam and the attached Toms and Lisas in order to create nice dashboards and graphs; this has been tested using Thingsboard and the Thingsboard IoT gateway.
 
@@ -20,13 +18,13 @@ Note the bridge only supports setting the thermostat temperature, not other feat
 
 ## Features
 
-* Set the temperature of Lisa thermostats through MQTT topic(s)
-* Publish all appliance data (Toms, Lisas and the Gateway) to MQTT on a regular interval
-* The status of the bridge is published at regular intervals to status topic(s)
+*  Set the temperature of Lisa thermostats through MQTT topic(s)
+*  Publish all appliance data (Toms, Lisas and the Gateway) to MQTT on a regular interval
+*  The status of the bridge is published at regular intervals to status topic(s)
 
 ## Setup and run
 
-```
+```bash
 npm install 
 npm run build
 npm start
@@ -91,6 +89,6 @@ mqtt:
 
 ```
 
-References
+## References
 
-Error handling based on : https://medium.com/inato/expressive-error-handling-in-typescript-and-benefits-for-domain-driven-design-70726e061c86
+Error handling based on [Inato](https://medium.com/inato/expressive-error-handling-in-typescript-and-benefits-for-domain-driven-design-70726e061c86)

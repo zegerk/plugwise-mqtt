@@ -17,11 +17,18 @@ export default class Plugwise {
   private mapping: Mapping = Singleton.getInstance(Mapping)
 
   /**
+   * @todo handle as real XML and move to separate config file
+   */
+  public static SET_THERMOSTAT_TEMPLATE: string =
+    '<thermostat_functionality><setpoint>' +
+    '{temperature}' +
+    '</setpoint></thermostat_functionality>'
+
+  /**
    * Constructor
    */
   public constructor() {
     this.connect()
-
     this.initialize()
   }
 
@@ -57,6 +64,9 @@ export default class Plugwise {
       return false
     }
 
+    /**
+     * @todo actually parse the information and display it
+     */
     const gatewayModel = String(gateway).match(
       /<vendor_model>(.*)<\/vendor_model>/,
     )
@@ -95,12 +105,9 @@ export default class Plugwise {
         {locationId, thermostatId},
       )
 
-      const plugwiseMessage = template(
-        '<thermostat_functionality>' +
-          '<setpoint>{temperature}</setpoint>' +
-          '</thermostat_functionality>',
-        {temperature},
-      )
+      const plugwiseMessage = template(Plugwise.SET_THERMOSTAT_TEMPLATE, {
+        temperature,
+      })
 
       return this.plugwiseUpdateRequest(url, plugwiseMessage)
     }
