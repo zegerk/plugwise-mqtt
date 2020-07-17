@@ -6,7 +6,6 @@
 ![DevDependencies](https://david-dm.org/zegerk/plugwise-mqtt/dev-status.svg)
 [![npm version](https://badge.fury.io/js/plugwise-mqtt.svg)](https://badge.fury.io/js/plugwise-mqtt)
 
-
 # plugwise-mqtt
 
 Bridge between Plugwise Adam and a MQTT server
@@ -92,4 +91,4 @@ mqtt:
 
 ## References
 
-Error handling based on : [https://medium.com/inato/expressive-error-handling-in-typescript-and-benefits-for-domain-driven-design-70726e061c86]
+Error handling based on [Inato](https://medium.com/inato/expressive-error-handling-in-typescript-and-benefits-for-domain-driven-design-70726e061c86)
