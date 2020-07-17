@@ -1,6 +1,6 @@
 module.exports = {
   env: {browser: true, es2020: true},
-  extends: ['prettier', 'google'],
+  extends: ['prettier', 'google', 'plugin:json/recommended-with-comments'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 11,
