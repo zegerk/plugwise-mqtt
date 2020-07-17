@@ -7,8 +7,6 @@ import {noDomainObjectsFoundError} from './error'
  * to an actual HTTP "PUT"
  */
 export default class Mapping {
-  private static instance: Mapping
-
   /*
    * Mapping of appliance to appliance static variables, such as
    * location
@@ -26,19 +24,6 @@ export default class Mapping {
    * Nothing to do here
    */
   public constructor() {}
-
-  /**
-   * Singleton pattern
-   *
-   * @return {Mapping}
-   */
-  static getInstance(): Mapping {
-    if (!Mapping.instance) {
-      Mapping.instance = new Mapping()
-    }
-
-    return Mapping.instance
-  }
 
   /**
    * Return the thermostatId (note this is not the appliance id

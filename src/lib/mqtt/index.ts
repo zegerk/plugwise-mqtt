@@ -20,13 +20,13 @@ import type {plugwiseMqttMessage, statusMqttMessage} from '../../types/mqtt'
 import {template} from '../helpers'
 
 import Plugwise from '../plugwise'
+import Singleton from '../singleton'
 import {exit} from 'process'
 
 /**
  * MQTT handling
  */
 export default class Mqtt {
-  private static instance: Mqtt
   private mqttClient: MqttClient
   private plugwise: Plugwise
 
@@ -39,7 +39,7 @@ export default class Mqtt {
    * for multiple mqtt gateways
    */
   public constructor() {
-    this.plugwise = Plugwise.getInstance()
+    this.plugwise = Singleton.getInstance(Plugwise)
 
     logger.info({
       msg: 'Connecting to MQTT server',
@@ -65,19 +65,6 @@ export default class Mqtt {
     this.mqttClient
       .on('connect', this.onConnect.bind(this))
       .on('message', this.onMessage.bind(this))
-  }
-
-  /**
-   * Singleton pattern
-   *
-   * @return {Mqtt}
-   */
-  static getInstance(): Mqtt {
-    if (!Mqtt.instance) {
-      Mqtt.instance = new Mqtt()
-    }
-
-    return Mqtt.instance
   }
 
   /**

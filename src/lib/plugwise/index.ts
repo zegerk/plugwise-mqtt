@@ -3,6 +3,7 @@ import axios from 'axios'
 import {logger} from '../logger'
 import {plugwiseConfig} from '../config'
 import Mapping from '../mapping'
+import Singleton from '../singleton'
 import {template} from '../helpers'
 
 import {getRequestFailed, putRequestFailed} from './error'
@@ -13,9 +14,7 @@ export type PlugwiseObjectClass = 'Gateway' | 'Location' | 'Module'
  * Main Pluwise class
  */
 export default class Plugwise {
-  private static instance: Plugwise
-
-  private mapping: Mapping = Mapping.getInstance()
+  private mapping: Mapping = Singleton.getInstance(Mapping)
 
   /**
    * Constructor
@@ -24,19 +23,6 @@ export default class Plugwise {
     this.connect()
 
     this.initialize()
-  }
-
-  /**
-   * Singleton pattern
-   *
-   * @return {Plugwise}
-   */
-  static getInstance(): Plugwise {
-    if (!Plugwise.instance) {
-      Plugwise.instance = new Plugwise()
-    }
-
-    return Plugwise.instance
   }
 
   /**
@@ -80,7 +66,7 @@ export default class Plugwise {
       vendor_model: (<Array<string>>gatewayModel)[1],
     })
 
-    this.mapping = Mapping.getInstance()
+    this.mapping = Singleton.getInstance(Mapping)
 
     return true
   }
