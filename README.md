@@ -1,3 +1,12 @@
+![Node.js CI](https://github.com/zegerk/plugwise-mqtt/workflows/Node.js%20CI/badge.svg?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e6a5999bf8dd447f9332ce345c52a273)](https://app.codacy.com/manual/zegerk/plugwise-mqtt?utm_source=github.com&utm_medium=referral&utm_content=zegerk/plugwise-mqtt&utm_campaign=Badge_Grade_Dashboard)
+[![Known Vulnerabilities](https://snyk.io/test/github/zegerk/plugwise-mqtt/badge.svg)](https://snyk.io/test/github/zegerk/plugwise-mqtt)
+[![Maintainability](https://api.codeclimate.com/v1/badges/da81856a8a53a198b4bb/maintainability)](https://codeclimate.com/github/zegerk/plugwise-mqtt/maintainability)
+![Dependencies](https://david-dm.org/zegerk/plugwise-mqtt.svg)
+![DevDependencies](https://david-dm.org/zegerk/plugwise-mqtt/dev-status.svg)
+[![npm version](https://badge.fury.io/js/plugwise-mqtt.svg)](https://badge.fury.io/js/plugwise-mqtt)
+
+
 # plugwise-mqtt
 
 Bridge between Plugwise Adam and a MQTT server
