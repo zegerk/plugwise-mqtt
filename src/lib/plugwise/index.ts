@@ -29,7 +29,6 @@ export default class Plugwise {
    */
   public constructor() {
     this.connect()
-
     this.initialize()
   }
 
@@ -65,6 +64,9 @@ export default class Plugwise {
       return false
     }
 
+    /**
+     * @todo actually parse the information and display it
+     */
     const gatewayModel = String(gateway).match(
       /<vendor_model>(.*)<\/vendor_model>/,
     )
