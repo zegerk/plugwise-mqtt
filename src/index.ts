@@ -30,6 +30,7 @@ import {plugwiseConfig} from './lib/config'
 import Plugwise from './lib/plugwise'
 import {noDataRecievedError, xmlParserError} from './lib/plugwise/error'
 import Mqtt from './lib/mqtt'
+import Singleton from './lib/singleton'
 import {exit} from 'process'
 
 let plugwise: Plugwise
@@ -39,17 +40,12 @@ let mqtt: Mqtt
  * Get all updates values from Plugwise since timestamp and send them
  * to the MQTT class to handle
  *
- * @param {number}timestamp in ms, will be converted to seconds get
+ * @param {number} timestamp in ms, will be converted to seconds get
  * all updates since timestamp
  *
  * @return {number} timestamp in milliseconds of the latest update found
  */
 async function update(timestamp: number) {
-  /**
-   * Set to current timestamp, in case no updates are retrieved this will
-   * be the next timesatmp
-   */
-  let maxApplianceTimestamp = timestamp
   const statusMessage: statusMqttMessage = {
     updateTime: new Date(timestamp).toISOString(),
     updateCount: 0,
@@ -74,6 +70,28 @@ async function update(timestamp: number) {
     return timestamp
   }
 
+  return parsePlugwiseResult(result, timestamp)
+}
+
+/**
+ * @param {string} result raw XML string
+ * @param {number} timestamp in ms, will be converted to seconds get
+ * all updates since timestamp
+ *
+ * @return {number} timestamp in milliseconds of the latest update found
+ */
+async function parsePlugwiseResult(result: string, timestamp: number) {
+  /**
+   * Set to current timestamp, in case no updates are retrieved this will
+   * be the next timesatmp
+   */
+  let maxApplianceTimestamp = timestamp
+
+  const statusMessage: statusMqttMessage = {
+    updateTime: new Date(timestamp).toISOString(),
+    updateCount: 0,
+  }
+
   /**
    * Loop through the returned data a build a list of MQTT messages containing
    * only the data we need
@@ -83,7 +101,6 @@ async function update(timestamp: number) {
   parseString(result, function (err, result: any) {
     if (err) {
       const error = xmlParserError(err)
-
       logger.error(error)
 
       statusMessage.err = error
@@ -214,8 +231,8 @@ async function update(timestamp: number) {
 
   logger.info('Start main loop')
 
-  plugwise = Plugwise.getInstance()
-  mqtt = Mqtt.getInstance()
+  plugwise = Singleton.getInstance(Plugwise)
+  mqtt = Singleton.getInstance(Mqtt)
 
   /**
    * Starting timestamp at 0 return all objects in Plugwise so
