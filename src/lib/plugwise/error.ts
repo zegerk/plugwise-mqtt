@@ -1,25 +1,16 @@
-import AbstractError from '../error'
+/**
+ * The error factory
+ */
+import errFact from '../error'
 
 /**
  * Errors for Mqtt object
  */
-export default class PlugwiseError extends AbstractError {
+export default class PlugwiseError {
   static readonly errors = {
-    noDataRecieved: AbstractError.buildErrorFunction({
-      code: 401,
-      message: 'No data received from Plugwise',
-    }),
-    xmlParsingFailed: AbstractError.buildErrorFunction({
-      code: 402,
-      message: 'Failed parsing plugwise XML',
-    }),
-    getRequestFailed: AbstractError.buildErrorFunction({
-      code: 403,
-      message: 'GET request to Plugwise failed',
-    }),
-    putRequestFailed: AbstractError.buildErrorFunction({
-      code: 404,
-      message: 'PUT request to Plugwise failed',
-    }),
+    noDataRecieved: errFact.cBuild('No data received from Plugwise'),
+    xmlParsingFailed: errFact.cBuild('Failed parsing plugwise XML'),
+    getRequestFailed: errFact.cBuild('GET request to Plugwise failed'),
+    putRequestFailed: errFact.cBuild('PUT request to Plugwise failed'),
   }
 }

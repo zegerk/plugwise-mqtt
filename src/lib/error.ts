@@ -5,6 +5,11 @@ import type {ExtError, ExtErrorCode, ExtErrorParameters} from '../types/error'
  */
 export default abstract class AbstractError {
   /**
+   * Error ID counter
+   */
+  private static errorId: number = 1000
+
+  /**
    * Error factory
    *
    * @param {ExtErrorCode} errorCode the error code
@@ -25,18 +30,28 @@ export default abstract class AbstractError {
   /**
    * Use curry to build function
    *
-   * @param {any} extErrorCode
+   * @param {string} message
    * @param {ExtErrorParameters} errorParameters
    * @return {function}
    */
-  static buildErrorFunction: Function = (extErrorCode: {
-    code: number
-    message: string
-  }) => (errorParameters?: ExtErrorParameters) =>
+  static cBuild: Function = (message: string) =>
+    AbstractError.build(AbstractError.errorId++, message)
+
+  /**
+   * Use curry to build function
+   *
+   * @param {number} code
+   * @param {string} message
+   * @param {ExtErrorParameters} errorParameters
+   * @return {function}
+   */
+  static build: Function = (code: number, message: string) => (
+    errorParameters?: ExtErrorParameters,
+  ) =>
     AbstractError.error(
       {
-        code: extErrorCode.code,
-        message: extErrorCode.message,
+        code,
+        message,
       },
       errorParameters,
     )

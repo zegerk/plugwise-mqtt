@@ -1,17 +1,14 @@
-import AbstractError from '../error'
+/**
+ * The error factory
+ */
+import errFact from '../error'
 
 /**
  * Errors for Config object
  */
-export default class ConfigError extends AbstractError {
+export default class ConfigError {
   static readonly errors = {
-    loadingConfigFailed: AbstractError.buildErrorFunction({
-      code: 201,
-      message: 'Loading config failed',
-    }),
-    missingRequiredSettings: AbstractError.buildErrorFunction({
-      code: 202,
-      message: 'Missing required config settings',
-    }),
+    loadingConfigFailed: errFact.cBuild('Loading config failed'),
+    missingRequiredSettings: errFact.cBuild('Missing required config settings'),
   }
 }

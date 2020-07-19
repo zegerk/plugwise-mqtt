@@ -1,13 +1,13 @@
-import AbstractError from '../error'
+/**
+ * The error factory
+ */
+import errFact from '../error'
 
 /**
  * Errors for Mapping object
  */
-export default class MappingError extends AbstractError {
+export default class MappingError {
   static readonly errors = {
-    noDomainObjectsFound: AbstractError.buildErrorFunction({
-      code: 101,
-      message: 'No domain objects found',
-    }),
+    noDomainObjectsFound: errFact.cBuild('No domain objects found'),
   }
 }

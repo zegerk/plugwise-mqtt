@@ -1,25 +1,16 @@
-import AbstractError from '../error'
+/**
+ * The error factory
+ */
+import errFact from '../error'
 
 /**
  * Errors for Mqtt object
  */
-export default class MqttError extends AbstractError {
+export default class MqttError {
   static readonly errors = {
-    failedClosingConnection: AbstractError.buildErrorFunction({
-      code: 301,
-      message: 'Failed closing connection',
-    }),
-    failedPublishing: AbstractError.buildErrorFunction({
-      code: 302,
-      message: 'Failed publishing',
-    }),
-    failedSubscribing: AbstractError.buildErrorFunction({
-      code: 303,
-      message: 'Failed subscribing',
-    }),
-    failedConnecting: AbstractError.buildErrorFunction({
-      code: 304,
-      message: 'Failed connecting',
-    }),
+    failedClosingConnection: errFact.cBuild('Failed closing connection'),
+    failedPublishing: errFact.cBuild('Failed publishing'),
+    failedSubscribing: errFact.cBuild('Failed subscribing'),
+    failedConnecting: errFact.cBuild('Failed connecting'),
   }
 }
