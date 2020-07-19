@@ -4,7 +4,7 @@ import {exit} from 'process'
 
 import {logger} from '../logger'
 import {config} from '../../types/config'
-import {configLoadingError, missingRequiredSettingsError} from './error'
+import ConfigError from './error'
 
 /**
  * Helper constant for the MQTT topic configuration, using this constant
@@ -57,7 +57,7 @@ export function isCompleteMessageTemplate(messageTemplate: string) {
        * @todo better validation
        */
     } catch (err) {
-      logger.error(configLoadingError(err))
+      logger.error(ConfigError.errors.loadingConfigFailed({err}))
       exit(1)
     }
   } else {
@@ -68,7 +68,9 @@ export function isCompleteMessageTemplate(messageTemplate: string) {
       !plugwiseBaseConfig.plugwise.password ||
       !plugwiseBaseConfig.mqtt.server
     ) {
-      logger.error(missingRequiredSettingsError(plugwiseBaseConfig))
+      logger.error(
+        ConfigError.errors.missingRequiredSettings({attr: plugwiseBaseConfig}),
+      )
       exit(1)
     }
 

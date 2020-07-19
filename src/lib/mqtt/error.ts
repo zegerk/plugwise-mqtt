@@ -1,46 +1,25 @@
+import AbstractError from '../error'
+
 /**
- * Error codes for Plugwise
+ * Errors for Mqtt object
  */
-import {ExtError, ExtErrorAttributes} from '../error'
-
-export enum MqttError {
-  FailedClosingConnectionsError,
-  PublishingError,
-  SubscribeError,
-  ConnectError,
+export default class MqttError extends AbstractError {
+  static readonly errors = {
+    failedClosingConnection: AbstractError.buildErrorFunction({
+      code: 301,
+      message: 'Failed closing connection',
+    }),
+    failedPublishing: AbstractError.buildErrorFunction({
+      code: 302,
+      message: 'Failed publishing',
+    }),
+    failedSubscribing: AbstractError.buildErrorFunction({
+      code: 303,
+      message: 'Failed subscribing',
+    }),
+    failedConnecting: AbstractError.buildErrorFunction({
+      code: 304,
+      message: 'Failed connecting',
+    }),
+  }
 }
-
-export const connectError = (
-  error: Error,
-): ExtError<MqttError.ConnectError> => ({
-  type: MqttError.ConnectError,
-  message: 'Failed connecting to MQTT',
-  error,
-})
-
-export const failedClosingConnectionsError = (): ExtError<
-  MqttError.FailedClosingConnectionsError
-> => ({
-  type: MqttError.FailedClosingConnectionsError,
-  message: 'No domain objects found',
-})
-
-export const subscribeError = (
-  error: Error,
-  attr: ExtErrorAttributes,
-): ExtError<MqttError.SubscribeError> => ({
-  type: MqttError.SubscribeError,
-  message: 'Subscribing to topic failed',
-  error,
-  attr,
-})
-
-export const publishingError = (
-  error: Error,
-  attr: ExtErrorAttributes,
-): ExtError<MqttError.PublishingError> => ({
-  type: MqttError.PublishingError,
-  message: 'Publishing message failed',
-  error,
-  attr,
-})

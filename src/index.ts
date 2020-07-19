@@ -28,7 +28,7 @@ import {logger} from './lib/logger'
 import {plugwiseConfig} from './lib/config'
 
 import Plugwise from './lib/plugwise'
-import {noDataRecievedError, xmlParserError} from './lib/plugwise/error'
+import PlugwiseError from './lib/plugwise/error'
 import Mqtt from './lib/mqtt'
 import Singleton from './lib/singleton'
 import {exit} from 'process'
@@ -58,7 +58,7 @@ async function update(timestamp: number) {
   const result = await plugwise.getUpdatedObjects(Math.floor(timestamp / 1000))
 
   if (!result) {
-    const error = noDataRecievedError()
+    const error = PlugwiseError.errors.noDataRecieved()
 
     logger.error(error)
     statusMessage.err = error
@@ -100,7 +100,7 @@ async function parsePlugwiseResult(result: string, timestamp: number) {
    */
   parseString(result, function (err, result: any) {
     if (err) {
-      const error = xmlParserError(err)
+      const error = PlugwiseError.errors.xmlParsingFailed({err})
       logger.error(error)
 
       statusMessage.err = error

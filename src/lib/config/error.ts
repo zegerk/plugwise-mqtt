@@ -1,25 +1,17 @@
+import AbstractError from '../error'
+
 /**
- * Error codes for Plugwise
+ * Errors for Config object
  */
-import {ExtError, ExtErrorAttributes} from '../error'
-
-export enum ConfigError {
-  ConfigLoadingError,
-  MissingRequiredSettingsError,
+export default class ConfigError extends AbstractError {
+  static readonly errors = {
+    loadingConfigFailed: AbstractError.buildErrorFunction({
+      code: 201,
+      message: 'Loading config failed',
+    }),
+    missingRequiredSettings: AbstractError.buildErrorFunction({
+      code: 202,
+      message: 'Missing required config settings',
+    }),
+  }
 }
-
-export const configLoadingError = (
-  error: Error,
-): ExtError<ConfigError.ConfigLoadingError> => ({
-  type: ConfigError.ConfigLoadingError,
-  message: 'Loading config failed',
-  error,
-})
-
-export const missingRequiredSettingsError = (
-  attr: ExtErrorAttributes,
-): ExtError<ConfigError.MissingRequiredSettingsError> => ({
-  type: ConfigError.MissingRequiredSettingsError,
-  message: 'Missing required config settings',
-  attr,
-})

@@ -1,16 +1,13 @@
+import AbstractError from '../error'
+
 /**
- * Error codes for Plugwise
+ * Errors for Mapping object
  */
-import {ExtError} from '../error'
-
-export enum MappingError {
-  NoDomainObjectsFoundError,
-  MissingRequiredSettingsError,
+export default class MappingError extends AbstractError {
+  static readonly errors = {
+    noDomainObjectsFound: AbstractError.buildErrorFunction({
+      code: 101,
+      message: 'No domain objects found',
+    }),
+  }
 }
-
-export const noDomainObjectsFoundError = (): ExtError<
-  MappingError.NoDomainObjectsFoundError
-> => ({
-  type: MappingError.NoDomainObjectsFoundError,
-  message: 'No domain objects found',
-})

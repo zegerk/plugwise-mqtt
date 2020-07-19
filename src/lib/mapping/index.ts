@@ -1,6 +1,6 @@
 import {parseString} from 'xml2js'
 import {logger} from '../logger'
-import {noDomainObjectsFoundError} from './error'
+import MappingError from './error'
 
 /**
  * Appliance mapping - required to route and update from applianceId
@@ -71,7 +71,7 @@ export default class Mapping {
     logger.info('Start building appliance map')
 
     if (!domainObjects) {
-      logger.error(noDomainObjectsFoundError())
+      logger.error(MappingError.errors.noDomainObjectsFound())
       return false
     }
 

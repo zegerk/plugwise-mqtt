@@ -1,44 +1,25 @@
+import AbstractError from '../error'
+
 /**
- * Error codes for Plugwise
+ * Errors for Mqtt object
  */
-import {ExtError, ExtErrorAttributes} from '../error'
-
-export enum PlugwiseError {
-  NoDataRecieved,
-  XmlParserError,
-  GetRequestFailed,
-  PutRequestFailed,
+export default class PlugwiseError extends AbstractError {
+  static readonly errors = {
+    noDataRecieved: AbstractError.buildErrorFunction({
+      code: 401,
+      message: 'No data received from Plugwise',
+    }),
+    xmlParsingFailed: AbstractError.buildErrorFunction({
+      code: 402,
+      message: 'Failed parsing plugwise XML',
+    }),
+    getRequestFailed: AbstractError.buildErrorFunction({
+      code: 403,
+      message: 'GET request to Plugwise failed',
+    }),
+    putRequestFailed: AbstractError.buildErrorFunction({
+      code: 404,
+      message: 'PUT request to Plugwise failed',
+    }),
+  }
 }
-
-export const getRequestFailed = (
-  error: Error,
-): ExtError<PlugwiseError.GetRequestFailed> => ({
-  type: PlugwiseError.GetRequestFailed,
-  message: 'Get request to Plugwise failed',
-  error: error,
-})
-
-export const putRequestFailed = (
-  error: Error,
-  attr: ExtErrorAttributes,
-): ExtError<PlugwiseError.PutRequestFailed> => ({
-  type: PlugwiseError.PutRequestFailed,
-  message: 'Put request to Plugwise failed',
-  error,
-  attr,
-})
-
-export const xmlParserError = (
-  error: Error,
-): ExtError<PlugwiseError.XmlParserError> => ({
-  type: PlugwiseError.XmlParserError,
-  message: 'Error parsing Plugwise XML',
-  error: error,
-})
-
-export const noDataRecievedError = (): ExtError<
-  PlugwiseError.NoDataRecieved
-> => ({
-  type: PlugwiseError.NoDataRecieved,
-  message: 'No data received from Plugwise',
-})
