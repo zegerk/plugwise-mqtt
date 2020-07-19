@@ -18,9 +18,9 @@ Note the bridge only supports setting the thermostat temperature, not other feat
 
 ## Features
 
-*  Set the temperature of Lisa thermostats through MQTT topic(s)
-*  Publish all appliance data (Toms, Lisas and the Gateway) to MQTT on a regular interval
-*  The status of the bridge is published at regular intervals to status topic(s)
+*   Set the temperature of Lisa thermostats through MQTT topic(s)
+*   Publish all appliance data (Toms, Lisas and the Gateway) to MQTT on a regular interval
+*   The status of the bridge is published at regular intervals to status topic(s)
 
 ## Setup and run
 
