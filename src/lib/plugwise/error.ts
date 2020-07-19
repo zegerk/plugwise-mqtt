@@ -1,44 +1,16 @@
 /**
- * Error codes for Plugwise
+ * The error factory
  */
-import {ExtError, ExtErrorAttributes} from '../error'
+import errFact from '../error'
 
-export enum PlugwiseError {
-  NoDataRecieved,
-  XmlParserError,
-  GetRequestFailed,
-  PutRequestFailed,
+/**
+ * Errors for Mqtt object
+ */
+export default class PlugwiseError {
+  static readonly errors = {
+    noDataRecieved: errFact.cBuild('No data received from Plugwise'),
+    xmlParsingFailed: errFact.cBuild('Failed parsing plugwise XML'),
+    getRequestFailed: errFact.cBuild('GET request to Plugwise failed'),
+    putRequestFailed: errFact.cBuild('PUT request to Plugwise failed'),
+  }
 }
-
-export const getRequestFailed = (
-  error: Error,
-): ExtError<PlugwiseError.GetRequestFailed> => ({
-  type: PlugwiseError.GetRequestFailed,
-  message: 'Get request to Plugwise failed',
-  error: error,
-})
-
-export const putRequestFailed = (
-  error: Error,
-  attr: ExtErrorAttributes,
-): ExtError<PlugwiseError.PutRequestFailed> => ({
-  type: PlugwiseError.PutRequestFailed,
-  message: 'Put request to Plugwise failed',
-  error,
-  attr,
-})
-
-export const xmlParserError = (
-  error: Error,
-): ExtError<PlugwiseError.XmlParserError> => ({
-  type: PlugwiseError.XmlParserError,
-  message: 'Error parsing Plugwise XML',
-  error: error,
-})
-
-export const noDataRecievedError = (): ExtError<
-  PlugwiseError.NoDataRecieved
-> => ({
-  type: PlugwiseError.NoDataRecieved,
-  message: 'No data received from Plugwise',
-})

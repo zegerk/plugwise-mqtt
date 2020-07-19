@@ -1,25 +1,14 @@
 /**
- * Error codes for Plugwise
+ * The error factory
  */
-import {ExtError, ExtErrorAttributes} from '../error'
+import errFact from '../error'
 
-export enum ConfigError {
-  ConfigLoadingError,
-  MissingRequiredSettingsError,
+/**
+ * Errors for Config object
+ */
+export default class ConfigError {
+  static readonly errors = {
+    loadingConfigFailed: errFact.cBuild('Loading config failed'),
+    missingRequiredSettings: errFact.cBuild('Missing required config settings'),
+  }
 }
-
-export const configLoadingError = (
-  error: Error,
-): ExtError<ConfigError.ConfigLoadingError> => ({
-  type: ConfigError.ConfigLoadingError,
-  message: 'Loading config failed',
-  error,
-})
-
-export const missingRequiredSettingsError = (
-  attr: ExtErrorAttributes,
-): ExtError<ConfigError.MissingRequiredSettingsError> => ({
-  type: ConfigError.MissingRequiredSettingsError,
-  message: 'Missing required config settings',
-  attr,
-})

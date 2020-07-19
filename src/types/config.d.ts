@@ -16,12 +16,12 @@ export interface statusTopic {
   encoding?: string
 }
 
-export interface actionGroup {
+export type actionGroup = {
   [thermostat?: string]: actionTopic
   [scene?: string]: actionTopic
 }
 
-export interface config {
+export type config = {
   plugwisePolling: boolean
   logLevel: string
   plugwise: {

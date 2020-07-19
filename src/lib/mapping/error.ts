@@ -1,16 +1,13 @@
 /**
- * Error codes for Plugwise
+ * The error factory
  */
-import {ExtError} from '../error'
+import errFact from '../error'
 
-export enum MappingError {
-  NoDomainObjectsFoundError,
-  MissingRequiredSettingsError,
+/**
+ * Errors for Mapping object
+ */
+export default class MappingError {
+  static readonly errors = {
+    noDomainObjectsFound: errFact.cBuild('No domain objects found'),
+  }
 }
-
-export const noDomainObjectsFoundError = (): ExtError<
-  MappingError.NoDomainObjectsFoundError
-> => ({
-  type: MappingError.NoDomainObjectsFoundError,
-  message: 'No domain objects found',
-})

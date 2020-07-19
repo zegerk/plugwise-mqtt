@@ -6,7 +6,7 @@ import Mapping from '../mapping'
 import Singleton from '../singleton'
 import {template} from '../helpers'
 
-import {getRequestFailed, putRequestFailed} from './error'
+import PlugwiseError from './error'
 
 export type PlugwiseObjectClass = 'Gateway' | 'Location' | 'Module'
 
@@ -167,7 +167,7 @@ export default class Plugwise {
         ).data,
       )
     } catch (err) {
-      logger.error(getRequestFailed(err))
+      logger.error(PlugwiseError.errors.getRequestFailed({err}))
       return false
     }
   }
@@ -190,7 +190,9 @@ export default class Plugwise {
       })
       return result.status === 200
     } catch (err) {
-      logger.error(putRequestFailed(err, {url, message}))
+      logger.error(
+        PlugwiseError.errors.putRequestFailed({err, attr: {url, message}}),
+      )
       return false
     }
   }

@@ -2,12 +2,7 @@ import {connect, MqttClient} from 'mqtt'
 
 import {logger} from '../logger'
 import {plugwiseConfig, isCompleteMessageTemplate} from '../config'
-import {
-  failedClosingConnectionsError,
-  publishingError,
-  connectError,
-  subscribeError,
-} from './error'
+import MqttError from './error'
 
 import type {
   actionTopic,
@@ -54,7 +49,7 @@ export default class Mqtt {
       /**
        * No connection to MQTT server, nothing to do
        */
-      logger.error(connectError(err))
+      logger.error(MqttError.errors.failedConnecting({err}))
       exit(1)
     })
 
@@ -108,7 +103,10 @@ export default class Mqtt {
               function (err, granted) {
                 if (err) {
                   logger.error(
-                    subscribeError(err, {topic: mqttActionTopicListen}),
+                    MqttError.errors.failedSubscribing({
+                      err,
+                      attr: {mqttActionTopicListen},
+                    }),
                   )
                 } else {
                   logger.info({
@@ -185,10 +183,9 @@ export default class Mqtt {
                * Not really a publishing error @todo
                */
               logger.error(
-                publishingError(new Error('Error setting thermostat'), {
-                  topic,
-                  actionTopicConfig,
-                  message: rawMessage,
+                MqttError.errors.failedPublishing({
+                  err: new Error('Error setting thermostat'),
+                  attr: {actionTopicConfig, rawMessage},
                 }),
               )
             }
@@ -233,9 +230,10 @@ export default class Mqtt {
           (err: any) =>
             err &&
             logger.error(
-              publishingError(err, {
-                topic: topicConfig.topic,
-                message: statusMessage,
+              MqttError.errors.failedPublishing({
+                err,
+                // todo topicConfig.topic, statusMessage would be better
+                attr: {topicConfig_topic: topicConfig.topic, statusMessage},
               }),
             ),
         )
@@ -297,7 +295,13 @@ export default class Mqtt {
                 JSON.stringify(message),
                 {},
                 (err: any) =>
-                  err && logger.error(publishingError(err, {topic, message})),
+                  err &&
+                  logger.error(
+                    MqttError.errors.failedPublishing({
+                      err,
+                      attr: {topic, message},
+                    }),
+                  ),
               )
             } else {
               logger.info({
@@ -324,7 +328,7 @@ export default class Mqtt {
           logger.info('MQTT connections closed')
           resolve()
         } else {
-          const error = failedClosingConnectionsError()
+          const error = MqttError.errors.failedClosingConnection()
           logger.error(error)
           reject(error)
         }
