@@ -7,6 +7,7 @@ import MappingError from './error'
  * to an actual HTTP "PUT"
  */
 export default class Mapping {
+  public static CLASS_NAME = 'Mapping'
   /*
    * Mapping of appliance to appliance static variables, such as
    * location
@@ -23,7 +24,9 @@ export default class Mapping {
   /**
    * Nothing to do here
    */
-  public constructor() {}
+  public constructor() {
+    logger.info('Constructing ' + Mapping.CLASS_NAME)
+  }
 
   /**
    * Return the thermostatId (note this is not the appliance id

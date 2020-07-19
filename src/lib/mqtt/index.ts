@@ -22,6 +22,8 @@ import {exit} from 'process'
  * MQTT handling
  */
 export default class Mqtt {
+  public static CLASS_NAME = 'Mqtt'
+
   private mqttClient: MqttClient
   private plugwise: Plugwise
 
@@ -34,6 +36,7 @@ export default class Mqtt {
    * for multiple mqtt gateways
    */
   public constructor() {
+    logger.info('Constructing ' + Mqtt.CLASS_NAME)
     this.plugwise = Singleton.getInstance(Plugwise)
 
     logger.info({
