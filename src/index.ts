@@ -133,12 +133,12 @@ async function parsePlugwiseResult(result: string, timestamp: number) {
            */
           if (applianceValueTimestamp > timestamp) {
             const fieldName: string = pointLog.type[0]
-            let fieldValue: string | number =
+            const rawFieldValue: string | number =
               pointLog.period[0].measurement[0]._
 
-            fieldValue = !isNaN(Number(fieldValue))
-              ? parseFloat(String(fieldValue))
-              : fieldValue
+            const fieldValue: string | number = !isNaN(Number(rawFieldValue))
+              ? parseFloat(String(rawFieldValue))
+              : rawFieldValue
 
             const applianceData: plugwiseMqttMessage = {
               ts: applianceValueTimestamp,
@@ -150,7 +150,7 @@ async function parsePlugwiseResult(result: string, timestamp: number) {
                * Make real numbers from numeric string so they will be
                * encoded properly later on
                */
-              fieldValue: fieldValue,
+              fieldValue,
               /**
                * both key, value and key: value are set in the message
                *
