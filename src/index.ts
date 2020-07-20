@@ -150,7 +150,7 @@ async function parsePlugwiseResult(result: string, timestamp: number) {
                * Make real numbers from numeric string so they will be
                * encoded properly later on
                */
-              fieldValue,
+              fieldValue: fieldValue,
               /**
                * both key, value and key: value are set in the message
                *
