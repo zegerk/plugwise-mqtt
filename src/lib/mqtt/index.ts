@@ -289,13 +289,21 @@ export default class Mqtt {
                   applianceId: mqttMessage.id,
                   ...mqttMessage,
                 })
-
+ 
             if (!plugwiseConfig.mqtt.dryRun) {
               logger.debug({msg: 'publishing', topic, message})
 
               self.mqttClient.publish(
                 topic,
-                JSON.stringify(message),
+                /**
+                 * Numbers should not be converted to strings, upstream
+                 * listeners do not like it
+                 */
+                JSON.stringify(
+                  !isNaN(Number(message))
+                    ? parseFloat(String(message))
+                    : message,
+                ),
                 {},
                 (err: any) =>
                   err &&

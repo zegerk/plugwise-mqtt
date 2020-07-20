@@ -133,12 +133,12 @@ async function parsePlugwiseResult(result: string, timestamp: number) {
            */
           if (applianceValueTimestamp > timestamp) {
             const fieldName: string = pointLog.type[0]
-            let fieldValue: string | number =
+            const rawFieldValue: string | number =
               pointLog.period[0].measurement[0]._
 
-            fieldValue = !isNaN(Number(fieldValue))
-              ? parseFloat(String(fieldValue))
-              : fieldValue
+            const fieldValue: string | number = !isNaN(Number(rawFieldValue))
+              ? parseFloat(String(rawFieldValue))
+              : rawFieldValue
 
             const applianceData: plugwiseMqttMessage = {
               ts: applianceValueTimestamp,
