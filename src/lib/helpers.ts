@@ -19,7 +19,7 @@ export async function delay(ms: number) {
 export function template(
   template: string,
   substitutes: {[index: string]: string | number},
-) {
+): string {
   return Object.keys(substitutes).reduce(
     (accumulator, pattern) =>
       accumulator.replace('{' + pattern + '}', String(substitutes[pattern])),
