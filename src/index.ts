@@ -74,6 +74,168 @@ async function update(timestamp: number) {
 }
 
 /**
+ * Convert an appliance pointlog (single measurement) to
+ * and mqtt message object
+ *
+ * @param {any} pointLog
+ * @param {any} appliance corresponding appliance
+ * @return {plugwiseMqttMessage}
+ */
+function convertPointlog(pointLog: any, appliance: any) {
+  const fieldName: string = pointLog.type[0]
+  const rawFieldValue: string | number = pointLog.period[0].measurement[0]._
+
+  const fieldValue: string | number = !isNaN(Number(rawFieldValue))
+    ? parseFloat(String(rawFieldValue))
+    : rawFieldValue
+
+  return {
+    ts: new Date(pointLog.period[0].measurement[0].$.log_date).getTime(),
+    id: appliance.$.id,
+    name: appliance.name[0],
+    type: appliance.type[0],
+    fieldName: fieldName,
+    /**
+     * Make real numbers from numeric string so they will be
+     * encoded properly later on
+     */
+    fieldValue: fieldValue,
+    /**
+     * both key, value and key: value are set in the message
+     *
+     * { fieldName: temperature_theromstat,
+     *   fieldValue: 22.1,
+     *   temperature_thermostat: 22.1 }
+     */
+    [fieldName]: fieldValue,
+  }
+}
+
+/**
+ * Convert the plugwise timestamped appliance to relevant mqtt message
+ * objects
+ *
+ * @param {any[]} pointlogs list of pointlogs
+ * @param {any} appliance corresponding appliance
+ * @param {number} timestamp required for filtering of the values
+ * @return {plugwiseMqttMessage[]} returns the array of messages
+ * and the newest timestamp found; which can be used as a starting
+ * timestamp for the next sync
+ */
+function convertPointlogs(
+  pointlogs: any[],
+  appliance: any,
+  timestamp: number,
+): {messages: plugwiseMqttMessage[]; timestamp: number} {
+  /**
+   * Set to current timestamp, in case no updates are retrieved this will
+   * be the next timesatmp
+   */
+  let maxApplianceTimestamp = timestamp
+
+  return {
+    messages: pointlogs.reduce(function (logsAccumulator: any, pointLog: any) {
+      if (!pointLog.period) {
+        return logsAccumulator
+      }
+
+      /**
+       * Computed twice; but it is more structured to do the timestamp
+       * check here, and is confusing to add this value to the converPointLog
+       * function
+       */
+      const applianceValueTimestamp = new Date(
+        pointLog.period[0].measurement[0].$.log_date,
+      ).getTime()
+
+      /**
+       * If a single value is updated the full list of data fields
+       * for an appliance is returned, filter on update timestamp for
+       * the values in order to send the ones actually updated to MQTT
+       */
+      if (applianceValueTimestamp > timestamp) {
+        const applianceData: plugwiseMqttMessage = convertPointlog(
+          pointLog,
+          appliance,
+        )
+
+        logger.debug(JSON.stringify(applianceData))
+
+        /**
+         * Track the timestamp of the latest update so we can
+         * return it later to start the next update from that
+         * point in time
+         */
+        maxApplianceTimestamp = Math.max(
+          maxApplianceTimestamp,
+          applianceValueTimestamp,
+        )
+
+        return [...logsAccumulator, applianceData]
+      }
+
+      /**
+       * For this pointlog the timestamp is out of scope, so nothing
+       * to accumulate
+       */
+      return logsAccumulator
+    }, []),
+    timestamp: maxApplianceTimestamp,
+  }
+}
+
+/**
+ * Convert the plugwise timestamped appliance to relevant mqtt message
+ * objects
+ *
+ * @param {any[]} appliances list of appliances
+ * @param {number} timestamp required for filtering of the values
+ * @return {plugwiseMqttMessage[]} returns the array of messages
+ * and the newest timestamp found; which can be used as a starting
+ * timestamp for the next sync
+ */
+function convertAppliances(
+  appliances: any[],
+  timestamp: number,
+): {messages: plugwiseMqttMessage[]; timestamp: number} {
+  /**
+   * Set to current timestamp, in case no updates are retrieved this will
+   * be the next timesatmp
+   */
+  let maxApplianceTimestamp = timestamp
+
+  return {
+    messages: appliances.reduce(function (accumulator: any, appliance: any) {
+      if (!appliance.logs) {
+        return accumulator
+      }
+
+      const pointLogsResult: {
+        messages: plugwiseMqttMessage[]
+        timestamp: number
+      } = convertPointlogs(
+        appliance.logs[0].point_log || [],
+        appliance,
+        timestamp,
+      )
+
+      /**
+       * Track the timestamp of the latest update so we can
+       * return it later to start the next update from that
+       * point in time
+       */
+      maxApplianceTimestamp = Math.max(
+        maxApplianceTimestamp,
+        pointLogsResult.timestamp,
+      )
+
+      return [...accumulator, ...pointLogsResult.messages]
+    }, []),
+    timestamp: maxApplianceTimestamp,
+  }
+}
+
+/**
  * @param {string} result raw XML string
  * @param {number} timestamp in ms, will be converted to seconds get
  * all updates since timestamp
@@ -81,16 +243,15 @@ async function update(timestamp: number) {
  * @return {number} timestamp in milliseconds of the latest update found
  */
 async function parsePlugwiseResult(result: string, timestamp: number) {
-  /**
-   * Set to current timestamp, in case no updates are retrieved this will
-   * be the next timesatmp
-   */
-  let maxApplianceTimestamp = timestamp
-
   const statusMessage: statusMqttMessage = {
     updateTime: new Date(timestamp).toISOString(),
     updateCount: 0,
   }
+
+  let convertResult: {
+    messages: plugwiseMqttMessage[]
+    timestamp: number
+  } = {messages: [], timestamp}
 
   /**
    * Loop through the returned data a build a list of MQTT messages containing
@@ -108,80 +269,13 @@ async function parsePlugwiseResult(result: string, timestamp: number) {
       return false
     }
 
-    const mqttMessages = (result.domain_objects.appliance || []).reduce(
-      function (accumulator: any, appliance: any) {
-        if (!appliance.logs) {
-          return accumulator
-        }
-
-        const pointLogs = (appliance.logs[0].point_log || []).reduce(function (
-          logsAccumulator: any,
-          pointLog: any,
-        ) {
-          if (!pointLog.period) {
-            return logsAccumulator
-          }
-
-          const applianceValueTimestamp = new Date(
-            pointLog.period[0].measurement[0].$.log_date,
-          ).getTime()
-
-          /**
-           * If a single value is updated the full list of data fields
-           * for an appliance is returned, filter on update timestamp for
-           * the values in order to send the ones actually updated to MQTT
-           */
-          if (applianceValueTimestamp > timestamp) {
-            const fieldName: string = pointLog.type[0]
-            const rawFieldValue: string | number =
-              pointLog.period[0].measurement[0]._
-
-            const fieldValue: string | number = !isNaN(Number(rawFieldValue))
-              ? parseFloat(String(rawFieldValue))
-              : rawFieldValue
-
-            const applianceData: plugwiseMqttMessage = {
-              ts: applianceValueTimestamp,
-              id: appliance.$.id,
-              name: appliance.name[0],
-              type: appliance.type[0],
-              fieldName: fieldName,
-              /**
-               * Make real numbers from numeric string so they will be
-               * encoded properly later on
-               */
-              fieldValue: fieldValue,
-              /**
-               * both key, value and key: value are set in the message
-               *
-               * { fieldName: temperature_theromstat,
-               *   fieldValue: 22.1,
-               *   temperature_thermostat: 22.1 }
-               */
-              [fieldName]: fieldValue,
-            }
-
-            logger.debug(JSON.stringify(applianceData))
-
-            /**
-             * Track the timestamp of the latest update so we can
-             * return it later to start the next update from that
-             * point in time
-             */
-            maxApplianceTimestamp = Math.max(
-              maxApplianceTimestamp,
-              applianceValueTimestamp,
-            )
-
-            return [...logsAccumulator, applianceData]
-          }
-
-          return logsAccumulator
-        },
-        [])
-        return [...accumulator, ...pointLogs]
-      },
-      [],
+    /**
+     * Data and error check done, next convert the Plugwise data to
+     * relevant MQTT message objects
+     */
+    convertResult = convertAppliances(
+      result.domain_objects.appliance || [],
+      timestamp,
     )
 
     /**
@@ -191,20 +285,23 @@ async function parsePlugwiseResult(result: string, timestamp: number) {
      * @todo make a more pluggable structure to handle the messages to
      * other outputs besides mqtt
      */
-    mqtt.publish(mqttMessages)
+    mqtt.publish(convertResult.messages)
 
-    statusMessage.updateCount = mqttMessages.length
+    /**
+     * Bit hacky for now
+     */
+    statusMessage.updateCount = convertResult.messages.length
     mqtt.status(statusMessage)
 
     return true
   })
 
   /**
-   * In order not to miss any updates the latest update time stamp
+   * In order not to miss any updates the latest update timestamp
    * is returned so it can be used as a starting point for the next
    * update
    */
-  return maxApplianceTimestamp
+  return convertResult.timestamp
 }
 
 /**
