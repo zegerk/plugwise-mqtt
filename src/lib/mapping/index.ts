@@ -63,6 +63,46 @@ export default class Mapping {
   }
 
   /**
+   * Build locationId to thermostatId map
+   *
+   * @param {Object} locations
+   */
+  private buildLocationMap(locations: any) {
+    // yeah it is shit to do this - has some issues with the bind
+    const self = this
+
+    locations.reduce(function (_accumulator: never, location: any) {
+      ;(location.actuator_functionalities || []).reduce(function (
+        _accumulator: never,
+        actuatorFuncionality: any,
+      ) {
+        actuatorFuncionality.thermostat_functionality &&
+          (self.locationMapping[location.$.id] = {
+            thermostatId: actuatorFuncionality.thermostat_functionality[0].$.id,
+          })
+      },
+      [])
+    }, [])
+  }
+
+  /**
+   * Build applianceId to locationId map
+   *
+   * @param {Object} appliances
+   */
+  private buildApplianceMap(appliances: any) {
+    // yeah it is shit to do this - has some issues with the bind
+    const self = this
+
+    appliances.reduce(function (_accumulator: never, appliance: any) {
+      appliance.location &&
+        (self.applianceMapping[appliance.$.id] = {
+          locationId: appliance.location[0].$.id,
+        })
+    }, [])
+  }
+
+  /**
    * Store the relationship between appliance ID an the underlying control
    * ids, for example a thermostat appliance has a distinct ID for its child
    * named "thermostat" which is used to actually set the thermostat value
@@ -82,7 +122,7 @@ export default class Mapping {
   }
 
   /**
-   * Buld the action appliance mapping
+   * Build the action appliance mapping
    *
    * @param {string} domainObjects
    */
@@ -101,33 +141,8 @@ export default class Mapping {
           logger.error({msg: 'Building appliance mapping failed', error: err})
           reject(err)
         }
-        ;(result.domain_objects.appliance || []).reduce(function (
-          _accumulator: never,
-          appliance: any,
-        ) {
-          appliance.location &&
-            (self.applianceMapping[appliance.$.id] = {
-              locationId: appliance.location[0].$.id,
-            })
-        },
-        [])
-        ;(result.domain_objects.location || []).reduce(function (
-          _accumulator: never,
-          location: any,
-        ) {
-          ;(location.actuator_functionalities || []).reduce(function (
-            _accumulator: never,
-            actuatorFuncionality: any,
-          ) {
-            actuatorFuncionality.thermostat_functionality &&
-              (self.locationMapping[location.$.id] = {
-                thermostatId:
-                  actuatorFuncionality.thermostat_functionality[0].$.id,
-              })
-          },
-          [])
-        },
-        [])
+        self.buildApplianceMap(result.domain_objects.appliance || [])
+        self.buildLocationMap(result.domain_objects.location || [])
 
         logger.info('Appliance mapping done')
         resolve(true)
