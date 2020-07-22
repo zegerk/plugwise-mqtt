@@ -115,15 +115,13 @@ function convertPointlog(pointLog: any, appliance: any) {
  * Convert the plugwise timestamped appliance to relevant mqtt message
  * objects
  *
- * @param {any[]} pointlogs list of pointlogs
- * @param {any} appliance corresponding appliance
+ * @param {any} appliance appliance
  * @param {number} timestamp required for filtering of the values
  * @return {plugwiseMqttMessage[]} returns the array of messages
  * and the newest timestamp found; which can be used as a starting
  * timestamp for the next sync
  */
 function convertPointlogs(
-  pointlogs: any[],
   appliance: any,
   timestamp: number,
 ): {messages: plugwiseMqttMessage[]; timestamp: number} {
@@ -134,7 +132,10 @@ function convertPointlogs(
   let maxApplianceTimestamp = timestamp
 
   return {
-    messages: pointlogs.reduce(function (logsAccumulator: any, pointLog: any) {
+    messages: (appliance.logs[0].point_log || []).reduce(function (
+      logsAccumulator: any,
+      pointLog: any,
+    ) {
       if (!pointLog.period) {
         return logsAccumulator
       }
@@ -179,7 +180,8 @@ function convertPointlogs(
        * to accumulate
        */
       return logsAccumulator
-    }, []),
+    },
+    []),
     timestamp: maxApplianceTimestamp,
   }
 }
@@ -213,11 +215,7 @@ function convertAppliances(
       const pointLogsResult: {
         messages: plugwiseMqttMessage[]
         timestamp: number
-      } = convertPointlogs(
-        appliance.logs[0].point_log || [],
-        appliance,
-        timestamp,
-      )
+      } = convertPointlogs(appliance, timestamp)
 
       /**
        * Track the timestamp of the latest update so we can
