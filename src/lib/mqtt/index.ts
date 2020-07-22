@@ -289,7 +289,7 @@ export default class Mqtt {
                   applianceId: mqttMessage.id,
                   ...mqttMessage,
                 })
- 
+
             if (!plugwiseConfig.mqtt.dryRun) {
               logger.debug({msg: 'publishing', topic, message})
 
