@@ -133,39 +133,42 @@ function convertPointlogs(
       pointLog: any,
     ) {
       if (pointLog.period) {
-        /**
-         * Computed twice; but it is more structured to do the timestamp
-         * check here, and is confusing to add this value to the converPointLog
-         * function
-         */
-        const applianceValueTimestamp = new Date(
-          pointLog.period[0].measurement[0].$.log_date,
-        ).getTime()
+        return logsAccumulator
+      }
+
+      /**
+       * Computed twice; but it is more structured to do the timestamp
+       * check here, and is confusing to add this value to the converPointLog
+       * function
+       */
+      const applianceValueTimestamp = new Date(
+        pointLog.period[0].measurement[0].$.log_date,
+      ).getTime()
+
+      /**
+       * If a single value is updated the full list of data fields
+       * for an appliance is returned, filter on update timestamp for
+       * the values in order to send the ones actually updated to MQTT
+       */
+      if (applianceValueTimestamp > timestamp) {
+        const applianceData: plugwiseMqttMessage = convertPointlog(
+          pointLog,
+          appliance,
+        )
+
+        logger.debug(JSON.stringify(applianceData))
 
         /**
-         * If a single value is updated the full list of data fields
-         * for an appliance is returned, filter on update timestamp for
-         * the values in order to send the ones actually updated to MQTT
+         * Track the timestamp of the latest update so we can
+         * return it later to start the next update from that
+         * point in time
          */
-        if (applianceValueTimestamp > timestamp) {
-          const applianceData: plugwiseMqttMessage = convertPointlog(
-            pointLog,
-            appliance,
-          )
+        maxApplianceTimestamp = Math.max(
+          maxApplianceTimestamp,
+          applianceValueTimestamp,
+        )
 
-          /**
-           * Track the timestamp of the latest update so we can
-           * return it later to start the next update from that
-           * point in time
-           */
-          maxApplianceTimestamp = Math.max(
-            maxApplianceTimestamp,
-            applianceValueTimestamp,
-          )
-
-          logger.debug(JSON.stringify(applianceData))
-          return [...logsAccumulator, applianceData]
-        }
+        return [...logsAccumulator, applianceData]
       }
 
       /**
