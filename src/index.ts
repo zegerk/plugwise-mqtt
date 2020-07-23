@@ -89,24 +89,20 @@ function convertPointlog(pointLog: any, appliance: any) {
     ? parseFloat(String(rawFieldValue))
     : rawFieldValue
 
+  /**
+   * both key, value and key: value are set in the message
+   *
+   * { fieldName: temperature_theromstat,
+   *   fieldValue: 22.1,
+   *   temperature_thermostat: 22.1 }
+   */
   return {
     ts: new Date(pointLog.period[0].measurement[0].$.log_date).getTime(),
     id: appliance.$.id,
     name: appliance.name[0],
     type: appliance.type[0],
     fieldName: fieldName,
-    /**
-     * Make real numbers from numeric string so they will be
-     * encoded properly later on
-     */
     fieldValue: fieldValue,
-    /**
-     * both key, value and key: value are set in the message
-     *
-     * { fieldName: temperature_theromstat,
-     *   fieldValue: 22.1,
-     *   temperature_thermostat: 22.1 }
-     */
     [fieldName]: fieldValue,
   }
 }
@@ -136,43 +132,40 @@ function convertPointlogs(
       logsAccumulator: any,
       pointLog: any,
     ) {
-      if (!pointLog.period) {
-        return logsAccumulator
-      }
-
-      /**
-       * Computed twice; but it is more structured to do the timestamp
-       * check here, and is confusing to add this value to the converPointLog
-       * function
-       */
-      const applianceValueTimestamp = new Date(
-        pointLog.period[0].measurement[0].$.log_date,
-      ).getTime()
-
-      /**
-       * If a single value is updated the full list of data fields
-       * for an appliance is returned, filter on update timestamp for
-       * the values in order to send the ones actually updated to MQTT
-       */
-      if (applianceValueTimestamp > timestamp) {
-        const applianceData: plugwiseMqttMessage = convertPointlog(
-          pointLog,
-          appliance,
-        )
-
-        logger.debug(JSON.stringify(applianceData))
+      if (pointLog.period) {
+        /**
+         * Computed twice; but it is more structured to do the timestamp
+         * check here, and is confusing to add this value to the converPointLog
+         * function
+         */
+        const applianceValueTimestamp = new Date(
+          pointLog.period[0].measurement[0].$.log_date,
+        ).getTime()
 
         /**
-         * Track the timestamp of the latest update so we can
-         * return it later to start the next update from that
-         * point in time
+         * If a single value is updated the full list of data fields
+         * for an appliance is returned, filter on update timestamp for
+         * the values in order to send the ones actually updated to MQTT
          */
-        maxApplianceTimestamp = Math.max(
-          maxApplianceTimestamp,
-          applianceValueTimestamp,
-        )
+        if (applianceValueTimestamp > timestamp) {
+          const applianceData: plugwiseMqttMessage = convertPointlog(
+            pointLog,
+            appliance,
+          )
 
-        return [...logsAccumulator, applianceData]
+          /**
+           * Track the timestamp of the latest update so we can
+           * return it later to start the next update from that
+           * point in time
+           */
+          maxApplianceTimestamp = Math.max(
+            maxApplianceTimestamp,
+            applianceValueTimestamp,
+          )
+
+          logger.debug(JSON.stringify(applianceData))
+          return [...logsAccumulator, applianceData]
+        }
       }
 
       /**
