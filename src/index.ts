@@ -241,11 +241,6 @@ function convertAppliances(
  * @return {number} timestamp in milliseconds of the latest update found
  */
 async function parsePlugwiseResult(result: string, timestamp: number) {
-  const statusMessage: statusMqttMessage = {
-    updateTime: new Date(timestamp).toISOString(),
-    updateCount: 0,
-  }
-
   let convertResult: {
     messages: plugwiseMqttMessage[]
     timestamp: number
@@ -255,15 +250,15 @@ async function parsePlugwiseResult(result: string, timestamp: number) {
    * Loop through the returned data a build a list of MQTT messages containing
    * only the data we need
    *
+   * Note parseString is using a callback (!)
+   *
    * @return {boolean} result status - more details in topic
    */
   parseString(result, function (err, result: any) {
     if (err) {
       const error = PlugwiseError.errors.xmlParsingFailed({err})
       logger.error(error)
-
-      statusMessage.err = error
-      mqtt.status(statusMessage)
+      publishMessages([], timestamp, err)
       return false
     }
 
@@ -276,21 +271,7 @@ async function parsePlugwiseResult(result: string, timestamp: number) {
       timestamp,
     )
 
-    /**
-     * After all messages have been collected they are offloaded to the
-     * mqtt class
-     *
-     * @todo make a more pluggable structure to handle the messages to
-     * other outputs besides mqtt
-     */
-    mqtt.publish(convertResult.messages)
-
-    /**
-     * Bit hacky for now
-     */
-    statusMessage.updateCount = convertResult.messages.length
-    mqtt.status(statusMessage)
-
+    publishMessages(convertResult.messages, timestamp)
     return true
   })
 
@@ -300,6 +281,37 @@ async function parsePlugwiseResult(result: string, timestamp: number) {
    * update
    */
   return convertResult.timestamp
+}
+
+/**
+ * Publish messages
+ *
+ * @param {plugwiseMqttMessage[]} messages messages
+ * @param {number} timestamp timestamp of the sync
+ * @param {error} err
+ */
+function publishMessages(
+  messages: plugwiseMqttMessage[],
+  timestamp: number,
+  err?: Error,
+) {
+  const statusMessage: statusMqttMessage = {
+    updateTime: new Date(timestamp).toISOString(),
+    updateCount: 0,
+    err: err,
+  }
+
+  /*
+   * @todo make a more pluggable structure to handle the messages to
+   * other outputs besides mqtt
+   */
+  mqtt.publish(messages)
+
+  /**
+   * Bit hacky for now
+   */
+  statusMessage.updateCount = messages.length
+  mqtt.status(statusMessage)
 }
 
 /**
