@@ -75,7 +75,7 @@ async function update(timestamp: number) {
 
 /**
  * Convert an appliance pointlog (single measurement) to
- * and mqtt message object
+ * an mqtt message object
  *
  * @param {any} pointLog
  * @param {any} appliance corresponding appliance
