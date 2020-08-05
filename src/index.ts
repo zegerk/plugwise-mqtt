@@ -75,7 +75,7 @@ async function update(timestamp: number) {
 
 /**
  * Convert an appliance pointlog (single measurement) to
- * and mqtt message object
+ * an mqtt message object
  *
  * @param {any} pointLog
  * @param {any} appliance corresponding appliance
@@ -89,24 +89,20 @@ function convertPointlog(pointLog: any, appliance: any) {
     ? parseFloat(String(rawFieldValue))
     : rawFieldValue
 
+  /**
+   * both key, value and key: value are set in the message
+   *
+   * { fieldName: temperature_theromstat,
+   *   fieldValue: 22.1,
+   *   temperature_thermostat: 22.1 }
+   */
   return {
     ts: new Date(pointLog.period[0].measurement[0].$.log_date).getTime(),
     id: appliance.$.id,
     name: appliance.name[0],
     type: appliance.type[0],
     fieldName: fieldName,
-    /**
-     * Make real numbers from numeric string so they will be
-     * encoded properly later on
-     */
     fieldValue: fieldValue,
-    /**
-     * both key, value and key: value are set in the message
-     *
-     * { fieldName: temperature_theromstat,
-     *   fieldValue: 22.1,
-     *   temperature_thermostat: 22.1 }
-     */
     [fieldName]: fieldValue,
   }
 }
@@ -115,15 +111,13 @@ function convertPointlog(pointLog: any, appliance: any) {
  * Convert the plugwise timestamped appliance to relevant mqtt message
  * objects
  *
- * @param {any[]} pointlogs list of pointlogs
- * @param {any} appliance corresponding appliance
+ * @param {any} appliance appliance
  * @param {number} timestamp required for filtering of the values
  * @return {plugwiseMqttMessage[]} returns the array of messages
  * and the newest timestamp found; which can be used as a starting
  * timestamp for the next sync
  */
 function convertPointlogs(
-  pointlogs: any[],
   appliance: any,
   timestamp: number,
 ): {messages: plugwiseMqttMessage[]; timestamp: number} {
@@ -134,8 +128,11 @@ function convertPointlogs(
   let maxApplianceTimestamp = timestamp
 
   return {
-    messages: pointlogs.reduce(function (logsAccumulator: any, pointLog: any) {
-      if (!pointLog.period) {
+    messages: (appliance.logs[0].point_log || []).reduce(function (
+      logsAccumulator: any,
+      pointLog: any,
+    ) {
+      if (pointLog.period) {
         return logsAccumulator
       }
 
@@ -179,7 +176,8 @@ function convertPointlogs(
        * to accumulate
        */
       return logsAccumulator
-    }, []),
+    },
+    []),
     timestamp: maxApplianceTimestamp,
   }
 }
@@ -213,11 +211,7 @@ function convertAppliances(
       const pointLogsResult: {
         messages: plugwiseMqttMessage[]
         timestamp: number
-      } = convertPointlogs(
-        appliance.logs[0].point_log || [],
-        appliance,
-        timestamp,
-      )
+      } = convertPointlogs(appliance, timestamp)
 
       /**
        * Track the timestamp of the latest update so we can
@@ -243,11 +237,6 @@ function convertAppliances(
  * @return {number} timestamp in milliseconds of the latest update found
  */
 async function parsePlugwiseResult(result: string, timestamp: number) {
-  const statusMessage: statusMqttMessage = {
-    updateTime: new Date(timestamp).toISOString(),
-    updateCount: 0,
-  }
-
   let convertResult: {
     messages: plugwiseMqttMessage[]
     timestamp: number
@@ -257,15 +246,15 @@ async function parsePlugwiseResult(result: string, timestamp: number) {
    * Loop through the returned data a build a list of MQTT messages containing
    * only the data we need
    *
+   * Note parseString is using a callback (!)
+   *
    * @return {boolean} result status - more details in topic
    */
   parseString(result, function (err, result: any) {
     if (err) {
       const error = PlugwiseError.errors.xmlParsingFailed({err})
       logger.error(error)
-
-      statusMessage.err = error
-      mqtt.status(statusMessage)
+      publishMessages([], timestamp, err)
       return false
     }
 
@@ -278,21 +267,7 @@ async function parsePlugwiseResult(result: string, timestamp: number) {
       timestamp,
     )
 
-    /**
-     * After all messages have been collected they are offloaded to the
-     * mqtt class
-     *
-     * @todo make a more pluggable structure to handle the messages to
-     * other outputs besides mqtt
-     */
-    mqtt.publish(convertResult.messages)
-
-    /**
-     * Bit hacky for now
-     */
-    statusMessage.updateCount = convertResult.messages.length
-    mqtt.status(statusMessage)
-
+    publishMessages(convertResult.messages, timestamp)
     return true
   })
 
@@ -302,6 +277,37 @@ async function parsePlugwiseResult(result: string, timestamp: number) {
    * update
    */
   return convertResult.timestamp
+}
+
+/**
+ * Publish messages
+ *
+ * @param {plugwiseMqttMessage[]} messages messages
+ * @param {number} timestamp timestamp of the sync
+ * @param {error} err
+ */
+function publishMessages(
+  messages: plugwiseMqttMessage[],
+  timestamp: number,
+  err?: Error,
+) {
+  const statusMessage: statusMqttMessage = {
+    updateTime: new Date(timestamp).toISOString(),
+    updateCount: 0,
+    err: err,
+  }
+
+  /*
+   * @todo make a more pluggable structure to handle the messages to
+   * other outputs besides mqtt
+   */
+  mqtt.publish(messages)
+
+  /**
+   * Bit hacky for now
+   */
+  statusMessage.updateCount = messages.length
+  mqtt.status(statusMessage)
 }
 
 /**
